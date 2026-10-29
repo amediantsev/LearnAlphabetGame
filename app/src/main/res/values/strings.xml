@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Абетка</string>
+    <string name="mode_alphabet">Абетка</string>
+    <string name="mode_shuffle">Випадково</string>
+    <string name="language_title">Мова</string>
+    <string name="coming_soon">скоро</string>
+    <string name="settings">Налаштування</string>
+    <string name="previous">Назад</string>
+    <string name="next">Далі</string>
+    <string name="speak">Озвучити</string>
+    <string name="voice_missing_title">Немає українського голосу</string>
+    <string name="voice_missing">Щоб чути літери, потрібен український голос. Відкрийте налаштування синтезу мовлення та завантажте українську мову для «Синтезатор мовлення Google».</string>
+    <string name="open_settings">Відкрити налаштування</string>
+    <string name="close">Закрити</string>
 </resources>
