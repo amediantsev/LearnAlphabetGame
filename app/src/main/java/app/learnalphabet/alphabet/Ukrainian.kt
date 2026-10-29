@@ -1,0 +1,63 @@
+package app.learnalphabet.alphabet
+
+import java.util.Locale
+
+private fun card(
+    upper: String,
+    lower: String,
+    spokenName: String,
+    word: String,
+    imageName: String,
+    placeholder: String,
+    highlightIndex: Int = 0,
+) = LetterCard(
+    upper = upper,
+    lower = lower,
+    spokenName = spokenName,
+    word = word,
+    highlightIndex = highlightIndex,
+    imageName = imageName,
+    placeholder = placeholder,
+)
+
+val Ukrainian = Language(
+    code = "uk",
+    displayName = "Українська",
+    ttsLocale = Locale("uk", "UA"),
+    available = true,
+    letters = listOf(
+        card("А", "а", "а", "автобус", "01-avtobus", "🚌"),
+        card("Б", "б", "бе", "банан", "02-banan", "🍌"),
+        card("В", "в", "ве", "ведмідь", "03-vedmid", "🐻"),
+        card("Г", "г", "ге", "груша", "04-hrusha", "🍐"),
+        card("Ґ", "ґ", "ґе", "ґудзик", "05-gudzyk", ""),
+        card("Д", "д", "де", "динозавр", "06-dynozavr", "🦕"),
+        card("Е", "е", "е", "екскаватор", "07-ekskavator", ""),
+        card("Є", "є", "є", "єнот", "08-yenot", "🦝"),
+        card("Ж", "ж", "же", "жираф", "09-zhyraf", "🦒"),
+        card("З", "з", "зе", "зебра", "10-zebra", "🦓"),
+        card("И", "и", "и", "кит", "11-kyt", "🐋", highlightIndex = 1),
+        card("І", "і", "і", "індик", "12-indyk", "🦃"),
+        card("Ї", "ї", "ї", "їжак", "13-yizhak", "🦔"),
+        card("Й", "й", "йот", "йогурт", "14-yohurt", ""),
+        card("К", "к", "ка", "кіт", "15-kit", "🐱"),
+        card("Л", "л", "ел", "лев", "16-lev", "🦁"),
+        card("М", "м", "ем", "м'яч", "17-miach", "⚽"),
+        card("Н", "н", "ен", "носоріг", "18-nosorih", "🦏"),
+        card("О", "о", "о", "огірок", "19-ohirok", "🥒"),
+        card("П", "п", "пе", "пінгвін", "20-pinhvin", "🐧"),
+        card("Р", "р", "ер", "риба", "21-ryba", "🐟"),
+        card("С", "с", "ес", "сонце", "22-sontse", "☀️"),
+        card("Т", "т", "те", "трактор", "23-traktor", "🚜"),
+        card("У", "у", "у", "усмішка", "24-usmishka", "😊"),
+        card("Ф", "ф", "еф", "фламінго", "25-flamingo", "🦩"),
+        card("Х", "х", "ха", "хмарка", "26-khmarka", "☁️"),
+        card("Ц", "ц", "це", "цукерка", "27-tsukerka", "🍬"),
+        card("Ч", "ч", "че", "черепаха", "28-cherepakha", "🐢"),
+        card("Ш", "ш", "ша", "шапка", "29-shapka", "🧢"),
+        card("Щ", "щ", "ща", "щітка", "30-shchitka", "🪥"),
+        card("Ь", "ь", "м'який знак", "кінь", "31-kin", "🐴", highlightIndex = 3),
+        card("Ю", "ю", "ю", "рюкзак", "32-riukzak", "🎒", highlightIndex = 1),
+        card("Я", "я", "я", "яблуко", "33-yabluko", "🍎"),
+    ),
+)
