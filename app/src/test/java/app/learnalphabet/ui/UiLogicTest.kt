@@ -3,7 +3,6 @@ package app.learnalphabet.ui
 import app.learnalphabet.alphabet.Ukrainian
 import app.learnalphabet.order.OrderMode
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Test
 
 class UiLogicTest {
@@ -13,12 +12,8 @@ class UiLogicTest {
         assertEquals(1..1, highlightRange(Ukrainian.letters.first { it.upper == "И" }))
 
     @Test
-    fun imageAssetPath_existingFile() =
-        assertEquals("images/uk/02-banan.webp", imageAssetPath("uk", Ukrainian.letters[1]) { true })
-
-    @Test
-    fun imageAssetPath_missingFile_returnsNull() =
-        assertNull(imageAssetPath("uk", Ukrainian.letters[1]) { false })
+    fun imagePath_isLanguageFolderPlusWebp() =
+        assertEquals("images/uk/02-banan.webp", imagePath("uk", Ukrainian.letters[1]))
 
     @Test
     fun viewModel_setMode_keepsCurrentCard() {

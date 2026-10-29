@@ -54,4 +54,10 @@ class UkrainianDataTest {
         assertEquals("uk", Languages.default.code)
         assertFalse(Languages.byCode("en")!!.available)
     }
+
+    @Test
+    fun shapka_placeholder_isNotABaseballCap() {
+        val shapka = Ukrainian.letters.first { it.upper == "Ш" }
+        assertTrue(shapka.placeholder != "🧢")
+    }
 }

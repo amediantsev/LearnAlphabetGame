@@ -51,4 +51,17 @@ class SpeechLogicTest {
         val card = Ukrainian.letters[0].copy(spokenWord = "авто́бус")
         assertEquals("авто́бус", utterancesFor(card)[1].text)
     }
+
+    @Test
+    fun stateForError_notInstalled_isMissingVoice() =
+        assertEquals(SpeakerState.MISSING_VOICE, stateForError(TextToSpeech.ERROR_NOT_INSTALLED_YET))
+
+    @Test
+    fun stateForError_network_isMissingVoice() {
+        assertEquals(SpeakerState.MISSING_VOICE, stateForError(TextToSpeech.ERROR_NETWORK))
+        assertEquals(SpeakerState.MISSING_VOICE, stateForError(TextToSpeech.ERROR_NETWORK_TIMEOUT))
+    }
+
+    @Test
+    fun stateForError_transientError_keepsState() = assertNull(stateForError(TextToSpeech.ERROR_SYNTHESIS))
 }

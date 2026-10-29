@@ -28,6 +28,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -61,10 +63,23 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
     val speakerState by speaker.state.collectAsStateWithLifecycle()
     var showLanguages by remember { mutableStateOf(false) }
     var showVoiceHelp by remember { mutableStateOf(false) }
+    // True between a tap on 🔊 and the speaker's answer, so a failure that is only reported
+    // while speaking (voice not downloaded, offline) still brings up the hint.
+    var speechRequested by remember { mutableStateOf(false) }
+    val assets = LocalContext.current.assets
+
+    LaunchedEffect(ui.language.code) { preloadPictures(assets, ui.language) }
+    LaunchedEffect(speakerState) {
+        if (speechRequested && speakerState.isBroken()) showVoiceHelp = true
+        speechRequested = false
+    }
 
     val speak = {
         when (speakerState) {
-            SpeakerState.READY -> speaker.speak(ui.card)
+            SpeakerState.READY -> {
+                speechRequested = true
+                speaker.speak(ui.card)
+            }
             SpeakerState.MISSING_VOICE, SpeakerState.UNAVAILABLE -> showVoiceHelp = true
             SpeakerState.INITIALIZING -> Unit
         }
@@ -149,6 +164,8 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
         )
     }
 }
+
+private fun SpeakerState.isBroken() = this == SpeakerState.MISSING_VOICE || this == SpeakerState.UNAVAILABLE
 
 @Composable
 private fun TopBar(mode: OrderMode, onMode: (OrderMode) -> Unit, onSettings: () -> Unit) {

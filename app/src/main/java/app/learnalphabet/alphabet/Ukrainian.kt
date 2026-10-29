@@ -54,7 +54,7 @@ val Ukrainian = Language(
         card("Х", "х", "ха", "хмарка", "26-khmarka", "☁️"),
         card("Ц", "ц", "це", "цукерка", "27-tsukerka", "🍬"),
         card("Ч", "ч", "че", "черепаха", "28-cherepakha", "🐢"),
-        card("Ш", "ш", "ша", "шапка", "29-shapka", "🧢"),
+        card("Ш", "ш", "ша", "шапка", "29-shapka", ""),
         card("Щ", "щ", "ща", "щітка", "30-shchitka", "🪥"),
         card("Ь", "ь", "м'який знак", "кінь", "31-kin", "🐴", highlightIndex = 3),
         card("Ю", "ю", "ю", "рюкзак", "32-riukzak", "🎒", highlightIndex = 1),

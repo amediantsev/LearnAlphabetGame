@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="abetka_background">#FFF8EC</color>
+    <color name="abetka_letter">#E4572E</color>
+    <!-- Cream window background so the app does not flash white while starting. -->
+    <style name="Theme.Abetka" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/abetka_background</item>
+    </style>
+</resources>

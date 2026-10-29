@@ -20,15 +20,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import app.learnalphabet.alphabet.Language
 import app.learnalphabet.alphabet.LetterCard
 import app.learnalphabet.ui.theme.AbetkaColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
 
-/** Asset path of the card's picture, or null when the picture has not been added yet. */
-fun imageAssetPath(language: String, card: LetterCard, exists: (String) -> Boolean): String? =
-    "images/$language/${card.imageName}.webp".takeIf(exists)
+/** Asset path of the card's picture (the file may not exist yet). */
+fun imagePath(language: String, card: LetterCard): String = "images/$language/${card.imageName}.webp"
 
 private sealed interface Picture {
     data object Loading : Picture
@@ -36,29 +36,40 @@ private sealed interface Picture {
     data class Loaded(val bitmap: ImageBitmap) : Picture
 }
 
-private fun AssetManager.load(path: String?): ImageBitmap? = path?.let {
-    try {
-        open(it).use(BitmapFactory::decodeStream)?.asImageBitmap()
-    } catch (e: IOException) {
-        null
+/** Decoded pictures stay in memory (33 × 512² is about 33 MB), so cards slide in already drawn. */
+private object Pictures {
+    @Volatile
+    private var cache: MemoCache<String, ImageBitmap>? = null
+
+    fun of(assets: AssetManager): MemoCache<String, ImageBitmap> =
+        cache ?: synchronized(this) {
+            cache ?: MemoCache<String, ImageBitmap> { path -> assets.decode(path) }.also { cache = it }
+        }
+
+    private fun AssetManager.decode(path: String): ImageBitmap? =
+        try {
+            open(path).use(BitmapFactory::decodeStream)?.asImageBitmap()
+        } catch (e: IOException) {
+            null // not added yet
+        }
+}
+
+/** Decodes every picture of the language in the background so later cards show instantly. */
+suspend fun preloadPictures(assets: AssetManager, language: Language) {
+    val cache = Pictures.of(assets)
+    withContext(Dispatchers.IO) {
+        language.letters.forEach { cache.get(imagePath(language.code, it)) }
     }
 }
 
-private fun AssetManager.exists(path: String): Boolean =
-    try {
-        open(path).close()
-        true
-    } catch (e: IOException) {
-        false
-    }
-
 @Composable
 fun CardImage(languageCode: String, card: LetterCard, modifier: Modifier = Modifier) {
-    val assets = LocalContext.current.assets
-    val picture by produceState<Picture>(Picture.Loading, languageCode, card.imageName) {
-        value = withContext(Dispatchers.IO) {
-            assets.load(imageAssetPath(languageCode, card, assets::exists))
-        }?.let { Picture.Loaded(it) } ?: Picture.Missing
+    val cache = Pictures.of(LocalContext.current.assets)
+    val path = imagePath(languageCode, card)
+    val initial = cache.peek(path)?.let { Picture.Loaded(it) }
+        ?: if (cache.isKnownMissing(path)) Picture.Missing else Picture.Loading
+    val picture by produceState(initial, path) {
+        value = withContext(Dispatchers.IO) { cache.get(path) }?.let { Picture.Loaded(it) } ?: Picture.Missing
     }
     Box(modifier, contentAlignment = Alignment.Center) {
         when (val p = picture) {

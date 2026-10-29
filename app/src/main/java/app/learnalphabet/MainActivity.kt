@@ -1,9 +1,7 @@
 package app.learnalphabet
 
 import android.content.ActivityNotFoundException
-import android.content.Intent
 import android.os.Bundle
-import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -12,7 +10,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.learnalphabet.alphabet.Languages
 import app.learnalphabet.speech.TtsCardSpeaker
-import app.learnalphabet.speech.ttsSettingsIntent
+import app.learnalphabet.speech.voiceSetupIntents
 import app.learnalphabet.ui.CardScreen
 import app.learnalphabet.ui.CardViewModel
 import app.learnalphabet.ui.theme.AbetkaColors
@@ -36,11 +34,19 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun openTtsSettings() {
-        try {
-            startActivity(ttsSettingsIntent())
-        } catch (e: ActivityNotFoundException) {
-            startActivity(Intent(Settings.ACTION_SETTINGS))
+        for (intent in voiceSetupIntents()) {
+            try {
+                startActivity(intent)
+                return
+            } catch (e: ActivityNotFoundException) {
+                // try the next screen
+            }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        speaker.recheck()
     }
 
     override fun onStop() {

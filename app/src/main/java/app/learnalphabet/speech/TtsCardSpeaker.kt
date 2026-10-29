@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import app.learnalphabet.alphabet.LetterCard
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,13 +12,18 @@ import java.util.Locale
 
 class TtsCardSpeaker(context: Context, private val locale: Locale) : CardSpeaker {
 
+    private val app = context.applicationContext
     private val _state = MutableStateFlow(SpeakerState.INITIALIZING)
     override val state: StateFlow<SpeakerState> = _state
 
-    private val tts: TextToSpeech?
+    private var tts: TextToSpeech? = null
 
     init {
-        val app = context.applicationContext
+        connect()
+    }
+
+    private fun connect() {
+        _state.value = SpeakerState.INITIALIZING
         val engine = chooseEngine(installedEngines(app), defaultEngine(app))
         tts = try {
             TextToSpeech(app, ::onInit, engine)
@@ -35,6 +41,7 @@ class TtsCardSpeaker(context: Context, private val locale: Locale) : CardSpeaker
         }
         val engine = tts ?: return
         engine.setSpeechRate(SPEECH_RATE)
+        engine.setOnUtteranceProgressListener(ErrorListener())
         _state.value = stateFor(engine.setLanguage(locale))
     }
 
@@ -43,8 +50,22 @@ class TtsCardSpeaker(context: Context, private val locale: Locale) : CardSpeaker
         if (_state.value != SpeakerState.READY) return
         utterancesFor(card).forEachIndexed { i, u ->
             val mode = if (u.flush) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
-            engine.speak(u.text, mode, null, "card-$i")
+            if (engine.speak(u.text, mode, null, "card-$i") == TextToSpeech.ERROR) {
+                _state.value = SpeakerState.UNAVAILABLE
+                return
+            }
             if (u.pauseAfterMs > 0) engine.playSilentUtterance(u.pauseAfterMs, TextToSpeech.QUEUE_ADD, "pause-$i")
+        }
+    }
+
+    override fun recheck() {
+        when (_state.value) {
+            SpeakerState.MISSING_VOICE -> tts?.let { _state.value = stateFor(it.setLanguage(locale)) }
+            SpeakerState.UNAVAILABLE -> {
+                tts?.shutdown()
+                connect()
+            }
+            SpeakerState.READY, SpeakerState.INITIALIZING -> Unit
         }
     }
 
@@ -55,6 +76,20 @@ class TtsCardSpeaker(context: Context, private val locale: Locale) : CardSpeaker
     override fun release() {
         tts?.stop()
         tts?.shutdown()
+        tts = null
+    }
+
+    /** Runs on a binder thread; MutableStateFlow is thread-safe. */
+    private inner class ErrorListener : UtteranceProgressListener() {
+        override fun onStart(utteranceId: String?) = Unit
+        override fun onDone(utteranceId: String?) = Unit
+
+        @Deprecated("Deprecated in Java")
+        override fun onError(utteranceId: String?) = Unit
+
+        override fun onError(utteranceId: String?, errorCode: Int) {
+            stateForError(errorCode)?.let { _state.value = it }
+        }
     }
 
     private companion object {

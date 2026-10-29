@@ -13,6 +13,9 @@ interface CardSpeaker {
     fun speak(card: LetterCard)
     fun stop()
     fun release()
+
+    /** Looks again for the voice, e.g. after the parent installed it in system settings. */
+    fun recheck()
 }
 
 const val GOOGLE_TTS = "com.google.android.tts"
@@ -29,6 +32,17 @@ fun stateFor(languageResult: Int): SpeakerState = when {
     else -> SpeakerState.UNAVAILABLE
 }
 
+/**
+ * Maps an error reported while speaking. Missing voice data or no network for an online-only
+ * voice means the parent has to install the voice; other errors are treated as one-offs (null).
+ */
+fun stateForError(errorCode: Int): SpeakerState? = when (errorCode) {
+    TextToSpeech.ERROR_NOT_INSTALLED_YET,
+    TextToSpeech.ERROR_NETWORK,
+    TextToSpeech.ERROR_NETWORK_TIMEOUT -> SpeakerState.MISSING_VOICE
+    else -> null
+}
+
 data class Utterance(val text: String, val flush: Boolean, val pauseAfterMs: Long = 0)
 
 /** Letter name, a short pause, then the word. The first one cuts off anything still playing. */
@@ -37,5 +51,9 @@ fun utterancesFor(card: LetterCard): List<Utterance> = listOf(
     Utterance(card.spokenWord ?: card.word, flush = false),
 )
 
-fun ttsSettingsIntent(): Intent =
-    Intent("com.android.settings.TTS_SETTINGS").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+/** Screens that let the parent install a voice, best first. */
+fun voiceSetupIntents(): List<Intent> = listOf(
+    Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA).setPackage(GOOGLE_TTS),
+    Intent("com.android.settings.TTS_SETTINGS"),
+    Intent(android.provider.Settings.ACTION_SETTINGS),
+).onEach { it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
