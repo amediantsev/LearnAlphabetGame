@@ -4,7 +4,18 @@ Android-застосунок для вивчення українських лі
 
 Дизайн: [docs/superpowers/specs/2026-10-29-learn-alphabet-design.md](docs/superpowers/specs/2026-10-29-learn-alphabet-design.md)
 
-## Зібрати APK
+## Завантажити готовий APK
+
+Остання збірка з `main`: [abetka-debug.apk](https://github.com/amediantsev/LearnAlphabetGame/releases/latest/download/abetka-debug.apk). Посилання можна відкрити одразу на телефоні.
+
+GitHub Actions збирає APK автоматично (`.github/workflows/apk.yml`):
+
+- на кожен PR: тести, збірка і пре-реліз `pr-<номер>`; у PR з'являється коментар із посиланням на APK. Коли PR закривають, пре-реліз видаляється;
+- на кожен пуш у `main`: реліз «Абетка: остання збірка» (посилання вище).
+
+Усі збірки, і з GitHub, і з будь-якого Mac, підписані одним ключем `app/debug.keystore`, тому нова версія встановлюється поверх старої. Це debug-ключ, він не секретний; для Google Play знадобиться окремий release-ключ.
+
+## Зібрати APK самому
 
 Потрібні JDK 17 (`brew install openjdk@17`) і Android SDK (`~/Library/Android/sdk`).
 
@@ -25,7 +36,7 @@ mkdir -p dist && cp app/build/outputs/apk/debug/app-debug.apk dist/abetka-debug.
 
 ## Встановити на телефон Xiaomi
 
-1. Перешліть `dist/abetka-debug.apk` на телефон (Telegram, Google Drive, кабель).
+1. Відкрийте на телефоні посилання на APK (див. вище) або перешліть `dist/abetka-debug.apk` (Telegram, Google Drive, кабель).
 2. Відкрийте файл. Телефон попросить дозволити встановлення з невідомих джерел для програми, через яку ви відкрили файл (наприклад, «Файли» чи Telegram). Дозвольте.
 3. Якщо HyperOS/MIUI покаже перевірку безпеки, оберіть «Все одно встановити». Попередження з'являється тому, що застосунок не з Google Play.
 4. Нову версію встановлюйте так само, поверх старої.

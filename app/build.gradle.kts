@@ -16,6 +16,16 @@ android {
         versionName = "0.1.0"
     }
 
+    // Shared debug key (not secret) so APKs built on CI and on any Mac install over each other.
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
