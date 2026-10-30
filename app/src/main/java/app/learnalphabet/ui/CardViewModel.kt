@@ -56,11 +56,14 @@ class CardViewModel(private val random: Random = Random.Default) : ViewModel() {
         }
     }
 
-    fun previous() {
-        if (_ui.value.mode == Mode.QUIZ) return
+    /** Goes back one card; false when there is nowhere to go (always in «Знайди»). */
+    fun previous(): Boolean {
+        if (_ui.value.mode == Mode.QUIZ) return false
         val before = navigator.current
         val after = navigator.previous()
-        if (after != before) _ui.value = _ui.value.copy(index = after, direction = -1)
+        if (after == before) return false
+        _ui.value = _ui.value.copy(index = after, direction = -1)
+        return true
     }
 
     fun setMode(mode: Mode) {
@@ -87,9 +90,13 @@ class CardViewModel(private val random: Random = Random.Default) : ViewModel() {
         }
     }
 
-    /** A tap on a letter tile in «Знайди». */
-    fun pick(option: Int) {
+    /**
+     * A tap on a letter tile of question [serial]. Taps on a question that is still sliding
+     * out after a skip are ignored, so they cannot land on the new question.
+     */
+    fun pick(serial: Int, option: Int) {
         val state = _ui.value
+        if (serial != state.quizSerial) return
         val quiz = state.quiz ?: return
         _ui.value = state.copy(quiz = quiz.pick(option))
     }

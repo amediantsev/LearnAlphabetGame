@@ -30,7 +30,7 @@ class QuizViewModelTest {
         val vm = vm()
         vm.setMode(Mode.QUIZ)
         val first = vm.ui.value
-        vm.pick(first.quiz!!.options.first { it != first.quiz!!.answer })
+        vm.pick(first.quizSerial, first.quiz!!.options.first { it != first.quiz!!.answer })
         vm.next()
         val second = vm.ui.value
         assertEquals(first.quizSerial + 1, second.quizSerial)
@@ -52,10 +52,11 @@ class QuizViewModelTest {
         val vm = vm()
         vm.setMode(Mode.QUIZ)
         val quiz = vm.ui.value.quiz!!
+        val serial = vm.ui.value.quizSerial
         val wrong = quiz.options.first { it != quiz.answer }
-        vm.pick(wrong)
+        vm.pick(serial, wrong)
         assertEquals(OptionState.WRONG, vm.ui.value.quiz!!.stateOf(wrong))
-        vm.pick(quiz.answer)
+        vm.pick(serial, quiz.answer)
         assertTrue(vm.ui.value.quiz!!.solved)
     }
 
@@ -100,4 +101,25 @@ class QuizViewModelTest {
     }
 
     @Test fun autoSpeak_neverInCardModes() = assertFalse(vm().consumeAutoSpeak(SpeakerState.READY))
+
+    @Test fun quiz_pickFromOldQuestion_isIgnored() {
+        val vm = vm()
+        vm.setMode(Mode.QUIZ)
+        val old = vm.ui.value
+        vm.next()
+        val now = vm.ui.value
+        (0 until 33).forEach { vm.pick(old.quizSerial, it) }
+        assertEquals(now, vm.ui.value)
+    }
+
+    @Test fun quiz_previous_reportsNoMove() {
+        val vm = vm()
+        vm.setMode(Mode.QUIZ)
+        assertFalse(vm.previous())
+    }
+
+    @Test fun cards_previous_reportsMove() {
+        val vm = vm()
+        assertTrue(vm.previous())
+    }
 }

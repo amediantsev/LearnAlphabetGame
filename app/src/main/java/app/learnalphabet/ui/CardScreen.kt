@@ -93,21 +93,20 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
     val speakerState by speaker.state.collectAsStateWithLifecycle()
     var showLanguages by remember { mutableStateOf(false) }
     var showVoiceHelp by remember { mutableStateOf(false) }
-    // True between a tap on 🔊 and the speaker's answer, so a failure that is only reported
-    // while speaking (voice not downloaded, offline) still brings up the hint.
-    var speechRequested by remember { mutableStateOf(false) }
+    // A failure that is only reported while speaking (voice not downloaded, offline) still
+    // brings up the hint, but only for speech that was asked for, never for auto-speech.
+    val voiceHint = remember { VoiceHint() }
     val assets = LocalContext.current.assets
 
     LaunchedEffect(ui.language.code) { preloadPictures(assets, ui.language) }
     LaunchedEffect(speakerState) {
-        if (speechRequested && speakerState.isBroken()) showVoiceHelp = true
-        speechRequested = false
+        if (voiceHint.onState(speakerState)) showVoiceHelp = true
     }
 
     val speak = {
         when (speakerState) {
             SpeakerState.READY -> {
-                speechRequested = true
+                voiceHint.onUserSpeak()
                 speaker.speak(ui.card)
             }
             SpeakerState.MISSING_VOICE, SpeakerState.UNAVAILABLE -> showVoiceHelp = true
@@ -115,13 +114,17 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
         }
     }
     val goNext = { speaker.stop(); viewModel.next() }
-    val goPrevious = { speaker.stop(); viewModel.previous() }
+    // In «Знайди» there is no going back, so a stray swipe must not cut off the question.
+    val goPrevious = { if (viewModel.previous()) speaker.stop() }
     val quiz = ui.mode == Mode.QUIZ
 
-    // «Знайди» speaks each new question once by itself. No speechRequested here: a missing voice
-    // must not pop up the hint unless the 🔊 button or the picture was tapped.
+    // «Знайди» speaks each new question once by itself. A missing voice must not pop up the
+    // hint unless the 🔊 button or the picture was tapped.
     LaunchedEffect(ui.quizSerial, ui.mode, speakerState) {
-        if (viewModel.consumeAutoSpeak(speakerState)) speaker.speak(viewModel.ui.value.card)
+        if (viewModel.consumeAutoSpeak(speakerState)) {
+            voiceHint.onAutoSpeak()
+            speaker.speak(viewModel.ui.value.card)
+        }
     }
 
     Column(
@@ -152,7 +155,7 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
                 modifier = Modifier.fillMaxSize(),
             ) { state ->
                 if (state.mode == Mode.QUIZ) {
-                    QuizContent(state, onPick = viewModel::pick, onSpeak = speak, modifier = Modifier.fillMaxSize())
+                    QuizContent(state, onPick = { viewModel.pick(state.quizSerial, it) }, onSpeak = speak, modifier = Modifier.fillMaxSize())
                     return@AnimatedContent
                 }
                 Column(
@@ -185,8 +188,8 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
             modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
         ) {
             if (quiz) {
-                // No going back in «Знайди»; the empty slot keeps 🔊 centred.
-                Spacer(Modifier.size(52.dp))
+                // No going back in «Знайди»; the empty slot is as wide as the ▶ slot, so 🔊 stays centred.
+                Spacer(Modifier.size(76.dp))
             } else {
                 RoundButton("◀", AbetkaColors.Arrow, 52.dp, stringResource(R.string.previous), goPrevious)
             }
@@ -238,7 +241,6 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
     }
 }
 
-private fun SpeakerState.isBroken() = this == SpeakerState.MISSING_VOICE || this == SpeakerState.UNAVAILABLE
 
 @Composable
 private fun TopBar(mode: Mode, onMode: (Mode) -> Unit, onSettings: () -> Unit) {
