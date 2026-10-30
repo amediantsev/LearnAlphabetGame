@@ -12,10 +12,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -44,18 +44,49 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.learnalphabet.R
+import app.learnalphabet.alphabet.Language
+import app.learnalphabet.alphabet.LetterCard
 import app.learnalphabet.order.OrderMode
 import app.learnalphabet.speech.CardSpeaker
 import app.learnalphabet.speech.SpeakerState
 import app.learnalphabet.ui.theme.AbetkaColors
 
 private val SwipeThreshold = 80.dp
+private val CardPadding = 24.dp
+private val LetterStyle = TextStyle(fontWeight = FontWeight.ExtraBold, fontSize = 100.sp)
+
+private fun letterPair(card: LetterCard) = "${card.upper} ${card.lower}"
+
+/**
+ * One letter size for every card of the language: as big as the widest pair ("Ж ж", "Щ щ")
+ * allows within [maxWidth], and no taller than [maxHeight]. Follows the phone's font scale.
+ */
+@Composable
+private fun rememberLetterSize(language: Language, maxWidth: Dp, maxHeight: Dp): TextUnit {
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    return remember(language, maxWidth, maxHeight, density) {
+        val measured = language.letters.map { measurer.measure(letterPair(it), LetterStyle, softWrap = false).size }
+        val scale = with(density) {
+            letterScale(
+                widest = measured.maxOf { it.width }.toFloat(),
+                lineHeight = measured.maxOf { it.height }.toFloat(),
+                maxWidth = maxWidth.toPx(),
+                maxHeight = maxHeight.toPx(),
+            )
+        }
+        LetterStyle.fontSize * scale
+    }
+}
 
 @Composable
 fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings: () -> Unit) {
@@ -96,37 +127,43 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
     ) {
         TopBar(mode = ui.mode, onMode = viewModel::setMode, onSettings = { showLanguages = true })
 
-        AnimatedContent(
-            targetState = ui,
-            contentKey = { it.language.code to it.index },
-            transitionSpec = {
-                val dir = targetState.direction
-                (slideInHorizontally { w -> dir * w } + fadeIn()) togetherWith
-                    (slideOutHorizontally { w -> -dir * w } + fadeOut())
-            },
-            label = "card",
-            modifier = Modifier.weight(1f).fillMaxWidth(),
-        ) { state ->
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
-            ) {
-                Text(
-                    "${state.card.upper} ${state.card.lower}",
-                    fontSize = 96.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = AbetkaColors.Letter,
-                )
-                CardImage(
-                    languageCode = state.language.code,
-                    card = state.card,
-                    modifier = Modifier
-                        .weight(1f, fill = false)
-                        .aspectRatio(1f)
-                        .clickable(onClick = speak),
-                )
-                WordText(state.card, highlight = AbetkaColors.Letter, fontSize = 40.sp)
+        BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
+            val contentWidth = maxWidth - CardPadding * 2
+            val letterSize = rememberLetterSize(ui.language, contentWidth, maxHeight * LetterHeightShare)
+            val pictureSize = pictureSide(contentWidth.value, maxHeight.value).dp
+
+            AnimatedContent(
+                targetState = ui,
+                contentKey = { it.language.code to it.index },
+                transitionSpec = {
+                    val dir = targetState.direction
+                    (slideInHorizontally { w -> dir * w } + fadeIn()) togetherWith
+                        (slideOutHorizontally { w -> -dir * w } + fadeOut())
+                },
+                label = "card",
+                modifier = Modifier.fillMaxSize(),
+            ) { state ->
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier.fillMaxSize().padding(horizontal = CardPadding),
+                ) {
+                    Text(
+                        letterPair(state.card),
+                        style = LetterStyle.copy(fontSize = letterSize),
+                        color = AbetkaColors.Letter,
+                        maxLines = 1,
+                        softWrap = false,
+                    )
+                    CardImage(
+                        languageCode = state.language.code,
+                        card = state.card,
+                        modifier = Modifier
+                            .size(pictureSize)
+                            .clickable(onClick = speak),
+                    )
+                    WordText(state.card, highlight = AbetkaColors.Letter, fontSize = 40.sp)
+                }
             }
         }
 
