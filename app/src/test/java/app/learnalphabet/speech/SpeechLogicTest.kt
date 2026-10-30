@@ -64,4 +64,29 @@ class SpeechLogicTest {
 
     @Test
     fun stateForError_transientError_keepsState() = assertNull(stateForError(TextToSpeech.ERROR_SYNTHESIS))
+
+    @Test
+    fun utterances_letterOnly_isJustTheLetter() {
+        val u = utterancesFor(Ukrainian.letters[1], SpeechMode.LETTER_ONLY)
+        assertEquals(listOf("бе"), u.map { it.text })
+        assertTrue(u[0].flush)
+        assertEquals(0L, u[0].pauseAfterMs)
+    }
+
+    @Test
+    fun utterances_letterAndWord_isLetterThenWord() =
+        assertEquals(listOf("бе", "банан"), utterancesFor(Ukrainian.letters[1], SpeechMode.LETTER_AND_WORD).map { it.text })
+
+    @Test
+    fun speechMode_default_isLetterAndWord() = assertEquals(SpeechMode.LETTER_AND_WORD, SpeechMode.DEFAULT)
+
+    @Test
+    fun speechMode_fromKey_roundTrips() =
+        SpeechMode.entries.forEach { assertEquals(it, SpeechMode.fromKey(it.key)) }
+
+    @Test
+    fun speechMode_fromKey_unknownOrMissing_isDefault() {
+        assertEquals(SpeechMode.DEFAULT, SpeechMode.fromKey(null))
+        assertEquals(SpeechMode.DEFAULT, SpeechMode.fromKey("something-else"))
+    }
 }

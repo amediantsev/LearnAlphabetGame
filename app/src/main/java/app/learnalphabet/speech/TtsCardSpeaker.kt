@@ -45,10 +45,10 @@ class TtsCardSpeaker(context: Context, private val locale: Locale) : CardSpeaker
         _state.value = stateFor(engine.setLanguage(locale))
     }
 
-    override fun speak(card: LetterCard) {
+    override fun speak(card: LetterCard, mode: SpeechMode) {
         val engine = tts ?: return
         if (_state.value != SpeakerState.READY) return
-        utterancesFor(card).forEachIndexed { i, u ->
+        utterancesFor(card, mode).forEachIndexed { i, u ->
             val mode = if (u.flush) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
             if (engine.speak(u.text, mode, null, "card-$i") == TextToSpeech.ERROR) {
                 _state.value = SpeakerState.UNAVAILABLE

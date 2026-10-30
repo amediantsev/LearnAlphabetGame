@@ -10,7 +10,7 @@ enum class SpeakerState { INITIALIZING, READY, MISSING_VOICE, UNAVAILABLE }
 /** Speaks a card aloud. Kept behind an interface so recorded audio can replace synthesis later. */
 interface CardSpeaker {
     val state: StateFlow<SpeakerState>
-    fun speak(card: LetterCard)
+    fun speak(card: LetterCard, mode: SpeechMode = SpeechMode.DEFAULT)
     fun stop()
     fun release()
 
@@ -43,13 +43,35 @@ fun stateForError(errorCode: Int): SpeakerState? = when (errorCode) {
     else -> null
 }
 
+/** What a card says aloud; the parent picks it in settings. [key] is what gets saved. */
+enum class SpeechMode(val key: String) {
+    /** «А… автобус» */
+    LETTER_AND_WORD("letter_and_word"),
+
+    /** «А» */
+    LETTER_ONLY("letter_only");
+
+    companion object {
+        val DEFAULT = LETTER_AND_WORD
+
+        /** A missing or unknown saved value falls back to [DEFAULT]. */
+        fun fromKey(key: String?): SpeechMode = entries.firstOrNull { it.key == key } ?: DEFAULT
+    }
+}
+
 data class Utterance(val text: String, val flush: Boolean, val pauseAfterMs: Long = 0)
 
-/** Letter name, a short pause, then the word. The first one cuts off anything still playing. */
-fun utterancesFor(card: LetterCard): List<Utterance> = listOf(
-    Utterance(card.spokenName, flush = true, pauseAfterMs = 450),
-    Utterance(card.spokenWord ?: card.word, flush = false),
-)
+/**
+ * Letter name, then (in [SpeechMode.LETTER_AND_WORD]) a short pause and the word.
+ * The first one cuts off anything still playing.
+ */
+fun utterancesFor(card: LetterCard, mode: SpeechMode = SpeechMode.DEFAULT): List<Utterance> = when (mode) {
+    SpeechMode.LETTER_ONLY -> listOf(Utterance(card.spokenName, flush = true))
+    SpeechMode.LETTER_AND_WORD -> listOf(
+        Utterance(card.spokenName, flush = true, pauseAfterMs = 450),
+        Utterance(card.spokenWord ?: card.word, flush = false),
+    )
+}
 
 /** Screens that let the parent install a voice, best first. */
 fun voiceSetupIntents(): List<Intent> = listOf(
