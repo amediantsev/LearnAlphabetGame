@@ -7,6 +7,9 @@
     <string name="option_letter">Літера %1$s</string>
     <string name="language_title">Мова</string>
     <string name="coming_soon">скоро</string>
+    <string name="speech_title">Озвучка</string>
+    <string name="speech_letter_and_word">Літера і слово: «А…\u00A0автобус»</string>
+    <string name="speech_letter_only">Тільки літера: «А»</string>
     <string name="settings">Налаштування</string>
     <string name="previous">Назад</string>
     <string name="next">Далі</string>

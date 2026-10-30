@@ -57,6 +57,7 @@ import app.learnalphabet.alphabet.Language
 import app.learnalphabet.alphabet.LetterCard
 import app.learnalphabet.speech.CardSpeaker
 import app.learnalphabet.speech.SpeakerState
+import app.learnalphabet.speech.SpeechMode
 import app.learnalphabet.ui.theme.AbetkaColors
 
 private val SwipeThreshold = 80.dp
@@ -88,10 +89,16 @@ private fun rememberLetterSize(language: Language, maxWidth: Dp, maxHeight: Dp):
 }
 
 @Composable
-fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings: () -> Unit) {
+fun CardScreen(
+    viewModel: CardViewModel,
+    speaker: CardSpeaker,
+    speechMode: SpeechMode,
+    onSpeechMode: (SpeechMode) -> Unit,
+    onOpenTtsSettings: () -> Unit,
+) {
     val ui by viewModel.ui.collectAsStateWithLifecycle()
     val speakerState by speaker.state.collectAsStateWithLifecycle()
-    var showLanguages by remember { mutableStateOf(false) }
+    var showSettings by remember { mutableStateOf(false) }
     var showVoiceHelp by remember { mutableStateOf(false) }
     // A failure that is only reported while speaking (voice not downloaded, offline) still
     // brings up the hint, but only for speech that was asked for, never for auto-speech.
@@ -107,7 +114,7 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
         when (speakerState) {
             SpeakerState.READY -> {
                 voiceHint.onUserSpeak()
-                speaker.speak(ui.card)
+                speaker.speak(ui.card, speechMode)
             }
             SpeakerState.MISSING_VOICE, SpeakerState.UNAVAILABLE -> showVoiceHelp = true
             SpeakerState.INITIALIZING -> Unit
@@ -123,7 +130,7 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
     LaunchedEffect(ui.quizSerial, ui.mode, speakerState) {
         if (viewModel.consumeAutoSpeak(speakerState)) {
             voiceHint.onAutoSpeak()
-            speaker.speak(viewModel.ui.value.card)
+            speaker.speak(viewModel.ui.value.card, speechMode)
         }
     }
 
@@ -134,7 +141,7 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
             .safeDrawingPadding()
             .swipe(onLeft = goNext, onRight = goPrevious),
     ) {
-        TopBar(mode = ui.mode, onMode = viewModel::setMode, onSettings = { showLanguages = true })
+        TopBar(mode = ui.mode, onMode = viewModel::setMode, onSettings = { showSettings = true })
 
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
             val contentWidth = maxWidth - CardPadding * 2
@@ -217,11 +224,13 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
         }
     }
 
-    if (showLanguages) {
-        LanguageDialog(
-            current = ui.language,
-            onSelect = { viewModel.setLanguage(it); showLanguages = false },
-            onDismiss = { showLanguages = false },
+    if (showSettings) {
+        SettingsDialog(
+            language = ui.language,
+            onLanguage = viewModel::setLanguage,
+            speechMode = speechMode,
+            onSpeechMode = onSpeechMode,
+            onDismiss = { showSettings = false },
         )
     }
     if (showVoiceHelp) {
