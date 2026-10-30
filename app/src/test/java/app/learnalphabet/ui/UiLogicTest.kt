@@ -1,7 +1,6 @@
 package app.learnalphabet.ui
 
 import app.learnalphabet.alphabet.Ukrainian
-import app.learnalphabet.order.OrderMode
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -21,9 +20,9 @@ class UiLogicTest {
         vm.next()
         vm.next()
         val before = vm.ui.value.index
-        vm.setMode(OrderMode.SHUFFLE)
+        vm.setMode(Mode.SHUFFLE)
         assertEquals(before, vm.ui.value.index)
-        assertEquals(OrderMode.SHUFFLE, vm.ui.value.mode)
+        assertEquals(Mode.SHUFFLE, vm.ui.value.mode)
     }
 
     @Test

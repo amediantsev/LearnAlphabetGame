@@ -55,7 +55,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.learnalphabet.R
 import app.learnalphabet.alphabet.Language
 import app.learnalphabet.alphabet.LetterCard
-import app.learnalphabet.order.OrderMode
 import app.learnalphabet.speech.CardSpeaker
 import app.learnalphabet.speech.SpeakerState
 import app.learnalphabet.ui.theme.AbetkaColors
@@ -205,7 +204,7 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
 private fun SpeakerState.isBroken() = this == SpeakerState.MISSING_VOICE || this == SpeakerState.UNAVAILABLE
 
 @Composable
-private fun TopBar(mode: OrderMode, onMode: (OrderMode) -> Unit, onSettings: () -> Unit) {
+private fun TopBar(mode: Mode, onMode: (Mode) -> Unit, onSettings: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
@@ -216,8 +215,8 @@ private fun TopBar(mode: OrderMode, onMode: (OrderMode) -> Unit, onSettings: () 
                 .border(1.dp, AbetkaColors.Outline, RoundedCornerShape(50))
                 .background(Color.White),
         ) {
-            ModeChip(stringResource(R.string.mode_alphabet), mode == OrderMode.ALPHABET) { onMode(OrderMode.ALPHABET) }
-            ModeChip(stringResource(R.string.mode_shuffle), mode == OrderMode.SHUFFLE) { onMode(OrderMode.SHUFFLE) }
+            ModeChip(stringResource(R.string.mode_alphabet), mode == Mode.ALPHABET) { onMode(Mode.ALPHABET) }
+            ModeChip(stringResource(R.string.mode_shuffle), mode == Mode.SHUFFLE) { onMode(Mode.SHUFFLE) }
         }
         Spacer(Modifier.weight(1f))
         val settings = stringResource(R.string.settings)
