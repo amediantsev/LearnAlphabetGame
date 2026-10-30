@@ -55,13 +55,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.learnalphabet.R
 import app.learnalphabet.alphabet.Language
 import app.learnalphabet.alphabet.LetterCard
-import app.learnalphabet.order.OrderMode
 import app.learnalphabet.speech.CardSpeaker
 import app.learnalphabet.speech.SpeakerState
 import app.learnalphabet.ui.theme.AbetkaColors
 
 private val SwipeThreshold = 80.dp
-private val CardPadding = 24.dp
+internal val CardPadding = 24.dp
 private val LetterStyle = TextStyle(fontWeight = FontWeight.ExtraBold, fontSize = 100.sp)
 
 private fun letterPair(card: LetterCard) = "${card.upper} ${card.lower}"
@@ -94,21 +93,20 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
     val speakerState by speaker.state.collectAsStateWithLifecycle()
     var showLanguages by remember { mutableStateOf(false) }
     var showVoiceHelp by remember { mutableStateOf(false) }
-    // True between a tap on 🔊 and the speaker's answer, so a failure that is only reported
-    // while speaking (voice not downloaded, offline) still brings up the hint.
-    var speechRequested by remember { mutableStateOf(false) }
+    // A failure that is only reported while speaking (voice not downloaded, offline) still
+    // brings up the hint, but only for speech that was asked for, never for auto-speech.
+    val voiceHint = remember { VoiceHint() }
     val assets = LocalContext.current.assets
 
     LaunchedEffect(ui.language.code) { preloadPictures(assets, ui.language) }
     LaunchedEffect(speakerState) {
-        if (speechRequested && speakerState.isBroken()) showVoiceHelp = true
-        speechRequested = false
+        if (voiceHint.onState(speakerState)) showVoiceHelp = true
     }
 
     val speak = {
         when (speakerState) {
             SpeakerState.READY -> {
-                speechRequested = true
+                voiceHint.onUserSpeak()
                 speaker.speak(ui.card)
             }
             SpeakerState.MISSING_VOICE, SpeakerState.UNAVAILABLE -> showVoiceHelp = true
@@ -116,7 +114,18 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
         }
     }
     val goNext = { speaker.stop(); viewModel.next() }
-    val goPrevious = { speaker.stop(); viewModel.previous() }
+    // In «Знайди» there is no going back, so a stray swipe must not cut off the question.
+    val goPrevious = { if (viewModel.previous()) speaker.stop() }
+    val quiz = ui.mode == Mode.QUIZ
+
+    // «Знайди» speaks each new question once by itself. A missing voice must not pop up the
+    // hint unless the 🔊 button or the picture was tapped.
+    LaunchedEffect(ui.quizSerial, ui.mode, speakerState) {
+        if (viewModel.consumeAutoSpeak(speakerState)) {
+            voiceHint.onAutoSpeak()
+            speaker.speak(viewModel.ui.value.card)
+        }
+    }
 
     Column(
         Modifier
@@ -134,7 +143,9 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
 
             AnimatedContent(
                 targetState = ui,
-                contentKey = { it.language.code to it.index },
+                contentKey = {
+                    Triple(it.language.code, it.mode == Mode.QUIZ, if (it.mode == Mode.QUIZ) it.quizSerial else it.index)
+                },
                 transitionSpec = {
                     val dir = targetState.direction
                     (slideInHorizontally { w -> dir * w } + fadeIn()) togetherWith
@@ -143,6 +154,10 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
                 label = "card",
                 modifier = Modifier.fillMaxSize(),
             ) { state ->
+                if (state.mode == Mode.QUIZ) {
+                    QuizContent(state, onPick = { viewModel.pick(state.quizSerial, it) }, onSpeak = speak, modifier = Modifier.fillMaxSize())
+                    return@AnimatedContent
+                }
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceEvenly,
@@ -172,9 +187,33 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
         ) {
-            RoundButton("◀", AbetkaColors.Arrow, 52.dp, stringResource(R.string.previous), goPrevious)
+            if (quiz) {
+                // No going back in «Знайди»; the empty slot is as wide as the ▶ slot, so 🔊 stays centred.
+                Spacer(Modifier.size(76.dp))
+            } else {
+                RoundButton("◀", AbetkaColors.Arrow, 52.dp, stringResource(R.string.previous), goPrevious)
+            }
             RoundButton("🔊", AbetkaColors.Sound, 64.dp, stringResource(R.string.speak), speak)
-            RoundButton("▶", AbetkaColors.Arrow, 52.dp, stringResource(R.string.next), goNext)
+            if (quiz) {
+                val solved = ui.quiz?.solved == true
+                // Grey "skip" until the answer is found, then a bigger glowing green "next".
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(76.dp)
+                        .then(if (solved) Modifier.border(6.dp, AbetkaColors.Right.copy(alpha = 0.25f), CircleShape) else Modifier),
+                ) {
+                    RoundButton(
+                        "▶",
+                        if (solved) AbetkaColors.Right else AbetkaColors.Disabled,
+                        if (solved) 60.dp else 52.dp,
+                        stringResource(R.string.next),
+                        goNext,
+                    )
+                }
+            } else {
+                RoundButton("▶", AbetkaColors.Arrow, 52.dp, stringResource(R.string.next), goNext)
+            }
         }
     }
 
@@ -202,10 +241,9 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
     }
 }
 
-private fun SpeakerState.isBroken() = this == SpeakerState.MISSING_VOICE || this == SpeakerState.UNAVAILABLE
 
 @Composable
-private fun TopBar(mode: OrderMode, onMode: (OrderMode) -> Unit, onSettings: () -> Unit) {
+private fun TopBar(mode: Mode, onMode: (Mode) -> Unit, onSettings: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
@@ -216,8 +254,9 @@ private fun TopBar(mode: OrderMode, onMode: (OrderMode) -> Unit, onSettings: () 
                 .border(1.dp, AbetkaColors.Outline, RoundedCornerShape(50))
                 .background(Color.White),
         ) {
-            ModeChip(stringResource(R.string.mode_alphabet), mode == OrderMode.ALPHABET) { onMode(OrderMode.ALPHABET) }
-            ModeChip(stringResource(R.string.mode_shuffle), mode == OrderMode.SHUFFLE) { onMode(OrderMode.SHUFFLE) }
+            ModeChip(stringResource(R.string.mode_alphabet), mode == Mode.ALPHABET) { onMode(Mode.ALPHABET) }
+            ModeChip(stringResource(R.string.mode_shuffle), mode == Mode.SHUFFLE) { onMode(Mode.SHUFFLE) }
+            ModeChip(stringResource(R.string.mode_quiz), mode == Mode.QUIZ) { onMode(Mode.QUIZ) }
         }
         Spacer(Modifier.weight(1f))
         val settings = stringResource(R.string.settings)
@@ -238,14 +277,14 @@ private fun TopBar(mode: OrderMode, onMode: (OrderMode) -> Unit, onSettings: () 
 private fun ModeChip(label: String, selected: Boolean, onClick: () -> Unit) {
     Text(
         label,
-        fontSize = 16.sp,
+        fontSize = 15.sp,
         fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
         color = if (selected) Color.White else AbetkaColors.Text,
         modifier = Modifier
             .clip(RoundedCornerShape(50))
             .background(if (selected) AbetkaColors.Arrow else Color.Transparent)
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 10.dp),
+            .padding(horizontal = 12.dp, vertical = 10.dp),
     )
 }
 

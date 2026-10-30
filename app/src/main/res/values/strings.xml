@@ -3,6 +3,8 @@
     <string name="app_name">Абетка</string>
     <string name="mode_alphabet">Абетка</string>
     <string name="mode_shuffle">Випадково</string>
+    <string name="mode_quiz">Знайди</string>
+    <string name="option_letter">Літера %1$s</string>
     <string name="language_title">Мова</string>
     <string name="coming_soon">скоро</string>
     <string name="settings">Налаштування</string>

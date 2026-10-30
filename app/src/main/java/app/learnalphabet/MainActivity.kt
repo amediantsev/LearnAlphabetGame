@@ -6,8 +6,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.ui.graphics.toArgb
-import androidx.lifecycle.viewmodel.compose.viewModel
 import app.learnalphabet.alphabet.Languages
 import app.learnalphabet.speech.TtsCardSpeaker
 import app.learnalphabet.speech.voiceSetupIntents
@@ -19,6 +19,7 @@ import app.learnalphabet.ui.theme.AbetkaTheme
 class MainActivity : ComponentActivity() {
 
     private lateinit var speaker: TtsCardSpeaker
+    private val cards: CardViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val bar = AbetkaColors.Background.toArgb()
@@ -27,8 +28,7 @@ class MainActivity : ComponentActivity() {
         speaker = TtsCardSpeaker(this, Languages.default.ttsLocale)
         setContent {
             AbetkaTheme {
-                val vm: CardViewModel = viewModel()
-                CardScreen(vm, speaker, onOpenTtsSettings = ::openTtsSettings)
+                CardScreen(cards, speaker, onOpenTtsSettings = ::openTtsSettings)
             }
         }
     }
@@ -52,6 +52,7 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         speaker.stop()
+        cards.onBackground()
     }
 
     override fun onDestroy() {
