@@ -13,6 +13,10 @@ object AbetkaColors {
     val Tile = Color(0xFFFFE4C4)
     val Outline = Color(0xFFE3D6BF)
     val Text = Color(0xFF333333)
+    val Right = Color(0xFF4C9F70)
+    val WrongFill = Color(0xFFFDE2DD)
+    val Wrong = Color(0xFFE4572E)
+    val Disabled = Color(0xFFCFC6B6)
 }
 
 /** Always light: a bright picture-book look regardless of the phone's dark mode. */

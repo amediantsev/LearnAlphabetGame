@@ -60,7 +60,7 @@ import app.learnalphabet.speech.SpeakerState
 import app.learnalphabet.ui.theme.AbetkaColors
 
 private val SwipeThreshold = 80.dp
-private val CardPadding = 24.dp
+internal val CardPadding = 24.dp
 private val LetterStyle = TextStyle(fontWeight = FontWeight.ExtraBold, fontSize = 100.sp)
 
 private fun letterPair(card: LetterCard) = "${card.upper} ${card.lower}"
@@ -116,6 +116,13 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
     }
     val goNext = { speaker.stop(); viewModel.next() }
     val goPrevious = { speaker.stop(); viewModel.previous() }
+    val quiz = ui.mode == Mode.QUIZ
+
+    // «Знайди» speaks each new question once by itself. No speechRequested here: a missing voice
+    // must not pop up the hint unless the 🔊 button or the picture was tapped.
+    LaunchedEffect(ui.quizSerial, ui.mode, speakerState) {
+        if (viewModel.consumeAutoSpeak(speakerState)) speaker.speak(viewModel.ui.value.card)
+    }
 
     Column(
         Modifier
@@ -133,7 +140,9 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
 
             AnimatedContent(
                 targetState = ui,
-                contentKey = { it.language.code to it.index },
+                contentKey = {
+                    Triple(it.language.code, it.mode == Mode.QUIZ, if (it.mode == Mode.QUIZ) it.quizSerial else it.index)
+                },
                 transitionSpec = {
                     val dir = targetState.direction
                     (slideInHorizontally { w -> dir * w } + fadeIn()) togetherWith
@@ -142,6 +151,10 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
                 label = "card",
                 modifier = Modifier.fillMaxSize(),
             ) { state ->
+                if (state.mode == Mode.QUIZ) {
+                    QuizContent(state, onPick = viewModel::pick, onSpeak = speak, modifier = Modifier.fillMaxSize())
+                    return@AnimatedContent
+                }
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceEvenly,
@@ -171,9 +184,33 @@ fun CardScreen(viewModel: CardViewModel, speaker: CardSpeaker, onOpenTtsSettings
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
         ) {
-            RoundButton("◀", AbetkaColors.Arrow, 52.dp, stringResource(R.string.previous), goPrevious)
+            if (quiz) {
+                // No going back in «Знайди»; the empty slot keeps 🔊 centred.
+                Spacer(Modifier.size(52.dp))
+            } else {
+                RoundButton("◀", AbetkaColors.Arrow, 52.dp, stringResource(R.string.previous), goPrevious)
+            }
             RoundButton("🔊", AbetkaColors.Sound, 64.dp, stringResource(R.string.speak), speak)
-            RoundButton("▶", AbetkaColors.Arrow, 52.dp, stringResource(R.string.next), goNext)
+            if (quiz) {
+                val solved = ui.quiz?.solved == true
+                // Grey "skip" until the answer is found, then a bigger glowing green "next".
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(76.dp)
+                        .then(if (solved) Modifier.border(6.dp, AbetkaColors.Right.copy(alpha = 0.25f), CircleShape) else Modifier),
+                ) {
+                    RoundButton(
+                        "▶",
+                        if (solved) AbetkaColors.Right else AbetkaColors.Disabled,
+                        if (solved) 60.dp else 52.dp,
+                        stringResource(R.string.next),
+                        goNext,
+                    )
+                }
+            } else {
+                RoundButton("▶", AbetkaColors.Arrow, 52.dp, stringResource(R.string.next), goNext)
+            }
         }
     }
 
@@ -217,6 +254,7 @@ private fun TopBar(mode: Mode, onMode: (Mode) -> Unit, onSettings: () -> Unit) {
         ) {
             ModeChip(stringResource(R.string.mode_alphabet), mode == Mode.ALPHABET) { onMode(Mode.ALPHABET) }
             ModeChip(stringResource(R.string.mode_shuffle), mode == Mode.SHUFFLE) { onMode(Mode.SHUFFLE) }
+            ModeChip(stringResource(R.string.mode_quiz), mode == Mode.QUIZ) { onMode(Mode.QUIZ) }
         }
         Spacer(Modifier.weight(1f))
         val settings = stringResource(R.string.settings)
@@ -237,14 +275,14 @@ private fun TopBar(mode: Mode, onMode: (Mode) -> Unit, onSettings: () -> Unit) {
 private fun ModeChip(label: String, selected: Boolean, onClick: () -> Unit) {
     Text(
         label,
-        fontSize = 16.sp,
+        fontSize = 15.sp,
         fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
         color = if (selected) Color.White else AbetkaColors.Text,
         modifier = Modifier
             .clip(RoundedCornerShape(50))
             .background(if (selected) AbetkaColors.Arrow else Color.Transparent)
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 10.dp),
+            .padding(horizontal = 12.dp, vertical = 10.dp),
     )
 }
 
