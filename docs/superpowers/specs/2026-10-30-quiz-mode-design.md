@@ -20,7 +20,7 @@ The exercise: the child sees a picture, hears "А… автобус" (exactly as
 
 ## Non-goals (for now, but noted for the future)
 
-- **Choosing the set of letters to check.** For now all 33 letters are asked, and wrong options are also drawn from all 33. Later the adult should be able to pick a subset, for example only the letters the child has already learnt. The code should not get in the way: the set of letters for questions and for options is a separate parameter, not hard-wired to "the whole language".
+- **Choosing the set of letters to check.** *(Done on 2026-11-02: a letter picker in ⚙️ settings; wrong options still come from the whole alphabet, as the owner chose.)* For now all 33 letters are asked, and wrong options are also drawn from all 33. Later the adult should be able to pick a subset, for example only the letters the child has already learnt. The code should not get in the way: the set of letters for questions and for options is a separate parameter, not hard-wired to "the whole language".
 - **Separate "learning" and "checking" sections.** For now the mode is a third button in the same switch. The owner plans to separate these parts more radically later. Keep the quiz logic apart from the card logic, so such a split only changes the UI.
 - **Sound effects** (a chime for a right answer, etc.). No sounds except the spoken question. The owner will probably add them later.
 - Points, score, statistics, timers, difficulty levels.

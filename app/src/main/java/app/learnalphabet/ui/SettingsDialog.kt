@@ -1,5 +1,7 @@
 package app.learnalphabet.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
@@ -17,6 +20,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -27,13 +31,15 @@ import app.learnalphabet.alphabet.Language
 import app.learnalphabet.alphabet.Languages
 import app.learnalphabet.speech.SpeechMode
 
-/** The ⚙️ dialog for the parent: language and what a card says aloud. */
+/** The ⚙️ dialog for the parent: language, what a card says aloud, and the letters Find asks about. */
 @Composable
 fun SettingsDialog(
     language: Language,
     onLanguage: (String) -> Unit,
     speechMode: SpeechMode,
     onSpeechMode: (SpeechMode) -> Unit,
+    quizLetterCount: Int,
+    onQuizLetters: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     AlertDialog(
@@ -57,6 +63,24 @@ fun SettingsDialog(
                 }
                 Choice(stringResource(R.string.speech_letter_only), speechMode == SpeechMode.LETTER_ONLY) {
                     onSpeechMode(SpeechMode.LETTER_ONLY)
+                }
+                Spacer(Modifier.height(12.dp))
+                SectionTitle(stringResource(R.string.mode_quiz))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .padding(top = 4.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color.White)
+                        .clickable(onClick = onQuizLetters)
+                        .padding(horizontal = 12.dp, vertical = 12.dp),
+                ) {
+                    Text(
+                        stringResource(R.string.quiz_letters_row, quizLetterCount, language.letters.size),
+                        modifier = Modifier.weight(1f),
+                    )
+                    Text("›", fontWeight = FontWeight.Bold)
                 }
             }
         },

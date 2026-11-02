@@ -99,6 +99,7 @@ fun CardScreen(
     val ui by viewModel.ui.collectAsStateWithLifecycle()
     val speakerState by speaker.state.collectAsStateWithLifecycle()
     var showSettings by remember { mutableStateOf(false) }
+    var showQuizLetters by remember { mutableStateOf(false) }
     var showVoiceHelp by remember { mutableStateOf(false) }
     // A failure that is only reported while speaking (voice not downloaded, offline) still
     // brings up the hint, but only for speech that was asked for, never for auto-speech.
@@ -126,9 +127,10 @@ fun CardScreen(
     val quiz = ui.mode == Mode.QUIZ
 
     // Find speaks each new question once by itself. A missing voice must not pop up the
-    // hint unless the 🔊 button or the picture was tapped.
-    LaunchedEffect(ui.quizSerial, ui.mode, speakerState) {
-        if (viewModel.consumeAutoSpeak(speakerState)) {
+    // hint unless the 🔊 button or the picture was tapped. While the parent is in settings the
+    // question waits and speaks once they close.
+    LaunchedEffect(ui.quizSerial, ui.mode, speakerState, showSettings) {
+        if (!showSettings && viewModel.consumeAutoSpeak(speakerState)) {
             voiceHint.onAutoSpeak()
             speaker.speak(viewModel.ui.value.card, speechMode)
         }
@@ -224,12 +226,20 @@ fun CardScreen(
         }
     }
 
-    if (showSettings) {
+    if (showSettings && showQuizLetters) {
+        LetterSetDialog(
+            language = ui.language,
+            selected = ui.quizLetters,
+            onDone = { viewModel.setQuizLetters(it); showQuizLetters = false },
+        )
+    } else if (showSettings) {
         SettingsDialog(
             language = ui.language,
             onLanguage = viewModel::setLanguage,
             speechMode = speechMode,
             onSpeechMode = onSpeechMode,
+            quizLetterCount = ui.quizLetters.size,
+            onQuizLetters = { showQuizLetters = true },
             onDismiss = { showSettings = false },
         )
     }

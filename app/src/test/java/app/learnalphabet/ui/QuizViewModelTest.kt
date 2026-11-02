@@ -1,6 +1,7 @@
 package app.learnalphabet.ui
 
 import app.learnalphabet.quiz.OptionState
+import app.learnalphabet.quiz.QuizLetterStore
 import app.learnalphabet.speech.SpeakerState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -121,5 +122,85 @@ class QuizViewModelTest {
     @Test fun cards_previous_reportsMove() {
         val vm = vm()
         assertTrue(vm.previous())
+    }
+
+    private class MemoryStore(var saved: MutableMap<String, String> = mutableMapOf()) : QuizLetterStore {
+        override fun load(languageCode: String): String? = saved[languageCode]
+        override fun save(languageCode: String, raw: String) { saved[languageCode] = raw }
+    }
+
+    private val amo = setOf("А", "М", "О")
+    private val amoIndices = setOf(0, 16, 18)
+
+    @Test fun quiz_asksOnlyChosenLetters() = repeat(20) { seed ->
+        val vm = CardViewModel(Random(seed), MemoryStore())
+        vm.setQuizLetters(amo)
+        vm.setMode(Mode.QUIZ)
+        val answers = List(30) { vm.ui.value.quiz!!.answer.also { vm.next() } }
+        assertEquals(amoIndices, answers.toSet())
+    }
+
+    @Test fun quiz_wrongOptionsMayComeFromOutsideTheSet() {
+        val vm = CardViewModel(Random(1), MemoryStore())
+        vm.setQuizLetters(amo)
+        vm.setMode(Mode.QUIZ)
+        val options = List(30) { vm.ui.value.quiz!!.options.also { assertEquals(4, it.size); vm.next() } }.flatten()
+        assertTrue(options.any { it !in amoIndices })
+    }
+
+    @Test fun quiz_singleLetterSet_stillHasFourOptions() {
+        val vm = CardViewModel(Random(0), MemoryStore())
+        vm.setQuizLetters(setOf("М"))
+        vm.setMode(Mode.QUIZ)
+        repeat(5) {
+            val quiz = vm.ui.value.quiz!!
+            assertEquals(16, quiz.answer)
+            assertEquals(4, quiz.options.toSet().size)
+            vm.next()
+        }
+    }
+
+    @Test fun letters_defaultIsAll() =
+        assertEquals(33, CardViewModel(Random(0), MemoryStore()).ui.value.quizLetters.size)
+
+    @Test fun letters_areSavedAndLoaded() {
+        val store = MemoryStore()
+        CardViewModel(Random(0), store).setQuizLetters(amo)
+        assertEquals(amo, CardViewModel(Random(0), store).ui.value.quizLetters)
+    }
+
+    @Test fun letters_changedInQuiz_newQuestionFromNewSet() {
+        val vm = CardViewModel(Random(0), MemoryStore())
+        vm.setMode(Mode.QUIZ)
+        val before = vm.ui.value.quizSerial
+        vm.setQuizLetters(setOf("Я"))
+        assertEquals(before + 1, vm.ui.value.quizSerial)
+        assertEquals(32, vm.ui.value.quiz!!.answer)
+        assertTrue(vm.consumeAutoSpeak(SpeakerState.READY))
+    }
+
+    @Test fun letters_sameSet_changesNothing() {
+        val vm = CardViewModel(Random(0), MemoryStore())
+        vm.setQuizLetters(amo)
+        vm.setMode(Mode.QUIZ)
+        val before = vm.ui.value
+        vm.setQuizLetters(setOf("О", "М", "А"))
+        assertEquals(before, vm.ui.value)
+    }
+
+    @Test fun letters_emptySet_isIgnored() {
+        val store = MemoryStore()
+        val vm = CardViewModel(Random(0), store)
+        vm.setQuizLetters(amo)
+        vm.setQuizLetters(emptySet())
+        assertEquals(amo, vm.ui.value.quizLetters)
+    }
+
+    @Test fun letters_changedInCards_staysOnCard() {
+        val vm = CardViewModel(Random(0), MemoryStore())
+        vm.next()
+        val before = vm.ui.value
+        vm.setQuizLetters(amo)
+        assertEquals(before.copy(quizLetters = amo), vm.ui.value)
     }
 }

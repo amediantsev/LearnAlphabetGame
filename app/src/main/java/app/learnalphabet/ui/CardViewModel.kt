@@ -8,9 +8,15 @@ import app.learnalphabet.order.CardNavigator
 import app.learnalphabet.order.OrderMode
 import app.learnalphabet.order.navigatorFor
 import app.learnalphabet.quiz.AutoSpeakGate
+import app.learnalphabet.quiz.MemoryLetterStore
 import app.learnalphabet.quiz.QuizDeck
+import app.learnalphabet.quiz.QuizLetterStore
 import app.learnalphabet.quiz.QuizQuestion
+import app.learnalphabet.quiz.allLetters
+import app.learnalphabet.quiz.decodeLetters
+import app.learnalphabet.quiz.encodeLetters
 import app.learnalphabet.quiz.newQuestion
+import app.learnalphabet.quiz.quizPool
 import app.learnalphabet.speech.SpeakerState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,20 +37,24 @@ data class CardUiState(
     val quiz: QuizQuestion? = null,
     /** Grows with every new question, so the same letter asked again is still a new screen. */
     val quizSerial: Int = 0,
+    /** Letters (uppercase) the Find quiz asks about, chosen by the parent; all by default. */
+    val quizLetters: Set<String> = allLetters(language),
 ) {
     val card: LetterCard get() = language.letters[index]
 }
 
-/** Letters the quiz asks about and draws wrong options from. Later: a set chosen by the parent. */
-fun quizPool(language: Language): List<Int> = language.letters.indices.toList()
+class CardViewModel(
+    private val random: Random = Random.Default,
+    private val letterStore: QuizLetterStore = MemoryLetterStore(),
+) : ViewModel() {
 
-class CardViewModel(private val random: Random = Random.Default) : ViewModel() {
-
-    private val _ui = MutableStateFlow(CardUiState(Languages.default, Mode.ALPHABET, 0))
+    private val _ui = MutableStateFlow(
+        CardUiState(Languages.default, Mode.ALPHABET, 0, quizLetters = savedLetters(Languages.default)),
+    )
     val ui: StateFlow<CardUiState> = _ui.asStateFlow()
 
     private var navigator: CardNavigator = navigatorFor(OrderMode.ALPHABET, Languages.default.letters.size, 0)
-    private var deck = QuizDeck(quizPool(Languages.default), random)
+    private var deck = QuizDeck(quizPool(Languages.default, _ui.value.quizLetters), random)
     private val autoSpeak = AutoSpeakGate()
 
     fun next() {
@@ -81,13 +91,28 @@ class CardViewModel(private val random: Random = Random.Default) : ViewModel() {
         val language = Languages.byCode(code) ?: return
         val state = _ui.value
         if (!language.available || language.letters.isEmpty() || language == state.language) return
-        deck = QuizDeck(quizPool(language), random)
+        val letters = savedLetters(language)
+        deck = QuizDeck(quizPool(language, letters), random)
         if (state.mode == Mode.QUIZ) {
-            askNext(state.copy(language = language))
+            askNext(state.copy(language = language, quizLetters = letters))
         } else {
             navigator = navigatorFor(state.mode.toOrder(), language.letters.size, 0)
-            _ui.value = CardUiState(language, state.mode, 0)
+            _ui.value = CardUiState(language, state.mode, 0, quizLetters = letters)
         }
+    }
+
+    /**
+     * The parent chose which letters Find asks about. Saved at once; in Find the next
+     * question comes from the new set right away, without waiting for the round to end.
+     */
+    fun setQuizLetters(letters: Set<String>) {
+        val state = _ui.value
+        val chosen = letters.intersect(allLetters(state.language))
+        if (chosen.isEmpty() || chosen == state.quizLetters) return
+        letterStore.save(state.language.code, encodeLetters(chosen, state.language))
+        deck = QuizDeck(quizPool(state.language, chosen), random)
+        val updated = state.copy(quizLetters = chosen)
+        if (state.mode == Mode.QUIZ) askNext(updated, avoid = state.index) else _ui.value = updated
     }
 
     /**
@@ -110,10 +135,14 @@ class CardViewModel(private val random: Random = Random.Default) : ViewModel() {
 
     private fun askNext(state: CardUiState, avoid: Int? = null) {
         val answer = deck.next(avoid)
-        val question = newQuestion(answer, quizPool(state.language), random)
+        // Wrong options come from the whole alphabet, not only from the chosen letters.
+        val question = newQuestion(answer, state.language.letters.indices.toList(), random)
         _ui.value = state.copy(index = answer, direction = 1, quiz = question, quizSerial = state.quizSerial + 1)
         autoSpeak.onNewQuestion()
     }
+
+    private fun savedLetters(language: Language): Set<String> =
+        decodeLetters(letterStore.load(language.code), language) ?: allLetters(language)
 
     private fun Mode.toOrder(): OrderMode = if (this == Mode.SHUFFLE) OrderMode.SHUFFLE else OrderMode.ALPHABET
 }

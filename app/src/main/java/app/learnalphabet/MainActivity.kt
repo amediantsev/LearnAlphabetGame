@@ -1,6 +1,7 @@
 package app.learnalphabet
 
 import android.content.ActivityNotFoundException
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -11,7 +12,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.toArgb
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import app.learnalphabet.alphabet.Languages
+import app.learnalphabet.quiz.QuizLetterStore
 import app.learnalphabet.speech.SpeechMode
 import app.learnalphabet.speech.TtsCardSpeaker
 import app.learnalphabet.speech.voiceSetupIntents
@@ -23,8 +27,10 @@ import app.learnalphabet.ui.theme.AbetkaTheme
 class MainActivity : ComponentActivity() {
 
     private lateinit var speaker: TtsCardSpeaker
-    private val cards: CardViewModel by viewModels()
     private val prefs by lazy { getSharedPreferences(PREFS, MODE_PRIVATE) }
+    private val cards: CardViewModel by viewModels {
+        viewModelFactory { initializer { CardViewModel(letterStore = PrefsLetterStore(prefs)) } }
+    }
     private var speechMode by mutableStateOf(SpeechMode.DEFAULT)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,4 +88,15 @@ class MainActivity : ComponentActivity() {
         const val PREFS = "settings"
         const val KEY_SPEECH_MODE = "speech_mode"
     }
+}
+
+/** Keeps the Find letter set in the app's settings file, one key per language. */
+private class PrefsLetterStore(private val prefs: SharedPreferences) : QuizLetterStore {
+    override fun load(languageCode: String): String? = prefs.getString(key(languageCode), null)
+
+    override fun save(languageCode: String, raw: String) {
+        prefs.edit().putString(key(languageCode), raw).apply()
+    }
+
+    private fun key(languageCode: String) = "quiz_letters_$languageCode"
 }
