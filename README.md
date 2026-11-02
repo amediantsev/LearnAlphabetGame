@@ -11,7 +11,9 @@ Design: [docs/superpowers/specs/2026-10-29-learn-alphabet-design.md](docs/superp
 
 In ⚙️ «Налаштування» (Settings) you can choose what is spoken: the letter and the word ("А… автобус") or just the letter ("А"). The choice applies to all modes and is kept after a restart.
 
-Find mode design: [docs/superpowers/specs/2026-10-30-quiz-mode-design.md](docs/superpowers/specs/2026-10-30-quiz-mode-design.md). Choosing a subset of letters to check is planned.
+In the same settings, «Знайди → Літери» opens a picker for the letters Find asks about, so the set can grow as the child learns new letters. Questions come only from the chosen letters; the wrong options come from the whole alphabet. By default all 33 letters are chosen, and the choice is kept after a restart.
+
+Find mode design: [docs/superpowers/specs/2026-10-30-quiz-mode-design.md](docs/superpowers/specs/2026-10-30-quiz-mode-design.md).
 
 ## Download a ready APK
 

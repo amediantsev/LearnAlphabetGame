@@ -7,6 +7,13 @@
     <string name="option_letter">Літера %1$s</string>
     <string name="language_title">Мова</string>
     <string name="coming_soon">скоро</string>
+    <string name="quiz_letters_row">Літери: %1$d з %2$d</string>
+    <string name="quiz_letters_title">Літери для «Знайди»</string>
+    <string name="quiz_letters_count">Вибрано %1$d з %2$d. Натисніть літеру, щоб додати або прибрати.</string>
+    <string name="quiz_letters_empty">Виберіть хоча б одну літеру.</string>
+    <string name="all">Усі</string>
+    <string name="clear">Очистити</string>
+    <string name="done">Готово</string>
     <string name="speech_title">Озвучка</string>
     <string name="speech_letter_and_word">Літера і слово: «А…\u00A0автобус»</string>
     <string name="speech_letter_only">Тільки літера: «А»</string>
