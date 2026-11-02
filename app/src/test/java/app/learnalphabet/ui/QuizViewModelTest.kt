@@ -203,4 +203,36 @@ class QuizViewModelTest {
         vm.setQuizLetters(amo)
         assertEquals(before.copy(quizLetters = amo), vm.ui.value)
     }
+
+    @Test fun pick_reportsWrongThenRight() {
+        val vm = vm()
+        vm.setMode(Mode.QUIZ)
+        val quiz = vm.ui.value.quiz!!
+        val serial = vm.ui.value.quizSerial
+        val wrong = quiz.options.first { it != quiz.answer }
+        assertEquals(PickResult.WRONG, vm.pick(serial, wrong))
+        assertEquals(PickResult.RIGHT, vm.pick(serial, quiz.answer))
+    }
+
+    @Test fun pick_repeatedOrAfterSolved_isIgnored() {
+        val vm = vm()
+        vm.setMode(Mode.QUIZ)
+        val quiz = vm.ui.value.quiz!!
+        val serial = vm.ui.value.quizSerial
+        val wrong = quiz.options.first { it != quiz.answer }
+        vm.pick(serial, wrong)
+        assertEquals(PickResult.IGNORED, vm.pick(serial, wrong))
+        vm.pick(serial, quiz.answer)
+        assertEquals(PickResult.IGNORED, vm.pick(serial, quiz.answer))
+        assertEquals(PickResult.IGNORED, vm.pick(serial, quiz.options.first { it != quiz.answer && it != wrong }))
+    }
+
+    @Test fun pick_oldQuestionOrOutsideQuiz_isIgnored() {
+        val vm = vm()
+        assertEquals(PickResult.IGNORED, vm.pick(0, 0))
+        vm.setMode(Mode.QUIZ)
+        val old = vm.ui.value
+        vm.next()
+        assertEquals(PickResult.IGNORED, vm.pick(old.quizSerial, old.quiz!!.answer))
+    }
 }

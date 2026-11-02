@@ -7,7 +7,7 @@ Design: [docs/superpowers/specs/2026-10-29-learn-alphabet-design.md](docs/superp
 ## Modes
 
 - **Alphabet** («Абетка») and **Shuffle** («Випадково»): learning cards (letter, picture, word), in order or shuffled.
-- **Find** («Знайди»): a check to consolidate what was learnt. The app shows a picture, speaks "а… автобус" once by itself, and the child looks for that letter among four. A wrong tile turns red and is disabled, so the child always reaches the right one. The right one turns green with ✓, the word appears, and ▶ moves on (▶ can also skip a question).
+- **Find** («Знайди»): a check to consolidate what was learnt. The app shows a picture, speaks "а… автобус" once by itself, and the child looks for that letter among four. A wrong tile turns red and is disabled, so the child always reaches the right one. The right one turns green with ✓, the word appears, and ▶ moves on (▶ can also skip a question). A right answer rings two bells, a wrong tile gives two soft wooden knocks; both follow the phone's media volume.
 
 In ⚙️ «Налаштування» (Settings) you can choose what is spoken: the letter and the word ("А… автобус") or just the letter ("А"). The choice applies to all modes and is kept after a restart.
 
@@ -59,6 +59,10 @@ Speech uses "Speech Services by Google". If after pressing 🔊 the app says the
 Settings → Additional settings → Languages & input → Text-to-speech output → Speech Services by Google ⚙️ → Install voice data → Ukrainian.
 
 (The exact menu names depend on the phone's language and firmware.) If Speech Services by Google is missing, install it from Google Play.
+
+## Quiz sounds
+
+The Find sounds (`app/src/main/res/raw/quiz_success.wav`, `quiz_fail.wav`) are synthesized by `tools/make-quiz-sounds.py` (needs `pip3 install numpy`). To tune one (louder, shorter, higher), change its numbers in the script, run `python3 tools/make-quiz-sounds.py` and build the APK again.
 
 ## Letter pronunciation
 
