@@ -16,6 +16,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import app.learnalphabet.alphabet.Languages
 import app.learnalphabet.quiz.QuizLetterStore
+import app.learnalphabet.speech.SoundPoolQuizSounds
 import app.learnalphabet.speech.SpeechMode
 import app.learnalphabet.speech.TtsCardSpeaker
 import app.learnalphabet.speech.voiceSetupIntents
@@ -27,6 +28,7 @@ import app.learnalphabet.ui.theme.AbetkaTheme
 class MainActivity : ComponentActivity() {
 
     private lateinit var speaker: TtsCardSpeaker
+    private lateinit var sounds: SoundPoolQuizSounds
     private val prefs by lazy { getSharedPreferences(PREFS, MODE_PRIVATE) }
     private val cards: CardViewModel by viewModels {
         viewModelFactory { initializer { CardViewModel(letterStore = PrefsLetterStore(prefs)) } }
@@ -38,12 +40,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge(SystemBarStyle.light(bar, bar), SystemBarStyle.light(bar, bar))
         super.onCreate(savedInstanceState)
         speaker = TtsCardSpeaker(this, Languages.default.ttsLocale)
+        sounds = SoundPoolQuizSounds(this)
         speechMode = SpeechMode.fromKey(prefs.getString(KEY_SPEECH_MODE, null))
         setContent {
             AbetkaTheme {
                 CardScreen(
                     cards,
                     speaker,
+                    sounds,
                     speechMode = speechMode,
                     onSpeechMode = ::saveSpeechMode,
                     onOpenTtsSettings = ::openTtsSettings,
@@ -81,6 +85,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         speaker.release()
+        sounds.release()
         super.onDestroy()
     }
 

@@ -22,7 +22,7 @@ The exercise: the child sees a picture, hears "А… автобус" (exactly as
 
 - **Choosing the set of letters to check.** *(Done on 2026-11-02: a letter picker in ⚙️ settings; wrong options still come from the whole alphabet, as the owner chose.)* For now all 33 letters are asked, and wrong options are also drawn from all 33. Later the adult should be able to pick a subset, for example only the letters the child has already learnt. The code should not get in the way: the set of letters for questions and for options is a separate parameter, not hard-wired to "the whole language".
 - **Separate "learning" and "checking" sections.** For now the mode is a third button in the same switch. The owner plans to separate these parts more radically later. Keep the quiz logic apart from the card logic, so such a split only changes the UI.
-- **Sound effects** (a chime for a right answer, etc.). No sounds except the spoken question. The owner will probably add them later.
+- **Sound effects** (a chime for a right answer, etc.). No sounds except the spoken question. The owner will probably add them later. *(Done on 2026-11-02: two bells, G5 → C6, for a right answer and two soft wooden knocks for a wrong tile. The owner picked both by ear over Kenney's CC0 interface sounds. They are synthesized by `tools/make-quiz-sounds.py`.)*
 - Points, score, statistics, timers, difficulty levels.
 
 ## Anti-goals (a failure even if it "works")
@@ -41,7 +41,7 @@ The exercise: the child sees a picture, hears "А… автобус" (exactly as
 - **4 options, a 2×2 grid** (mockup option A chosen; 3 options in a row rejected).
 - Wrong answer: the tile turns red (pale, with ✕) and can no longer be tapped. The rest stay active.
 - Right answer: green colour and a checkmark; the exact look the owner left to the builder (see below, approved on the mockup).
-- No sounds in any scenario, except speech.
+- No sounds in any scenario, except speech. *(Changed on 2026-11-02: see Sound effects under non-goals.)*
 - All letters of the language are asked, no subset.
 - Mode switch: «Абетка · Випадково · Знайди» (approved on the mockup, temporary).
 

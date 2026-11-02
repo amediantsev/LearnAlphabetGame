@@ -56,6 +56,7 @@ import app.learnalphabet.R
 import app.learnalphabet.alphabet.Language
 import app.learnalphabet.alphabet.LetterCard
 import app.learnalphabet.speech.CardSpeaker
+import app.learnalphabet.speech.QuizSounds
 import app.learnalphabet.speech.SpeakerState
 import app.learnalphabet.speech.SpeechMode
 import app.learnalphabet.ui.theme.AbetkaColors
@@ -92,6 +93,7 @@ private fun rememberLetterSize(language: Language, maxWidth: Dp, maxHeight: Dp):
 fun CardScreen(
     viewModel: CardViewModel,
     speaker: CardSpeaker,
+    sounds: QuizSounds,
     speechMode: SpeechMode,
     onSpeechMode: (SpeechMode) -> Unit,
     onOpenTtsSettings: () -> Unit,
@@ -164,7 +166,18 @@ fun CardScreen(
                 modifier = Modifier.fillMaxSize(),
             ) { state ->
                 if (state.mode == Mode.QUIZ) {
-                    QuizContent(state, onPick = { viewModel.pick(state.quizSerial, it) }, onSpeak = speak, modifier = Modifier.fillMaxSize())
+                    QuizContent(
+                        state,
+                        onPick = {
+                            when (viewModel.pick(state.quizSerial, it)) {
+                                PickResult.RIGHT -> sounds.right()
+                                PickResult.WRONG -> sounds.wrong()
+                                PickResult.IGNORED -> Unit
+                            }
+                        },
+                        onSpeak = speak,
+                        modifier = Modifier.fillMaxSize(),
+                    )
                     return@AnimatedContent
                 }
                 Column(

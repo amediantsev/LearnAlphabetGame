@@ -23,6 +23,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlin.random.Random
 
+/** What a tap on a Find tile did; the screen plays the matching sound. */
+enum class PickResult { RIGHT, WRONG, IGNORED }
+
 /** What the top switch shows: two ways to go through cards, and the Find quiz («Знайди»). */
 enum class Mode { ALPHABET, SHUFFLE, QUIZ }
 
@@ -119,11 +122,17 @@ class CardViewModel(
      * A tap on a letter tile of question [serial]. Taps on a question that is still sliding
      * out after a skip are ignored, so they cannot land on the new question.
      */
-    fun pick(serial: Int, option: Int) {
+    fun pick(serial: Int, option: Int): PickResult {
         val state = _ui.value
-        if (serial != state.quizSerial) return
-        val quiz = state.quiz ?: return
-        _ui.value = state.copy(quiz = quiz.pick(option))
+        if (serial != state.quizSerial) return PickResult.IGNORED
+        val quiz = state.quiz ?: return PickResult.IGNORED
+        val after = quiz.pick(option)
+        _ui.value = state.copy(quiz = after)
+        return when {
+            after.solved && !quiz.solved -> PickResult.RIGHT
+            after.wrong.size > quiz.wrong.size -> PickResult.WRONG
+            else -> PickResult.IGNORED
+        }
     }
 
     /** True once per new question, when the voice is ready: the screen then speaks it. */
