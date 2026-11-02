@@ -3,7 +3,7 @@ package app.learnalphabet.ui
 import app.learnalphabet.speech.SpeakerState
 
 /**
- * Decides when to show «Немає українського голосу»: only when speech the child or parent asked
+ * Decides when to show the "No Ukrainian voice" hint: only when speech the child or parent asked
  * for (🔊 or a tap on the picture) fails. Speech that started by itself never opens it.
  */
 class VoiceHint {

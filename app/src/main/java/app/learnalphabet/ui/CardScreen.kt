@@ -121,11 +121,11 @@ fun CardScreen(
         }
     }
     val goNext = { speaker.stop(); viewModel.next() }
-    // In «Знайди» there is no going back, so a stray swipe must not cut off the question.
+    // In Find there is no going back, so a stray swipe must not cut off the question.
     val goPrevious = { if (viewModel.previous()) speaker.stop() }
     val quiz = ui.mode == Mode.QUIZ
 
-    // «Знайди» speaks each new question once by itself. A missing voice must not pop up the
+    // Find speaks each new question once by itself. A missing voice must not pop up the
     // hint unless the 🔊 button or the picture was tapped.
     LaunchedEffect(ui.quizSerial, ui.mode, speakerState) {
         if (viewModel.consumeAutoSpeak(speakerState)) {
@@ -195,7 +195,7 @@ fun CardScreen(
             modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
         ) {
             if (quiz) {
-                // No going back in «Знайди»; the empty slot is as wide as the ▶ slot, so 🔊 stays centred.
+                // No going back in Find; the empty slot is as wide as the ▶ slot, so 🔊 stays centred.
                 Spacer(Modifier.size(76.dp))
             } else {
                 RoundButton("◀", AbetkaColors.Arrow, 52.dp, stringResource(R.string.previous), goPrevious)

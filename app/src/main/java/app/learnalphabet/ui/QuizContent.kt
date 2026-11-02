@@ -49,7 +49,7 @@ private val TileGap = 16.dp
 private val WordSlot = 56.dp
 private val TileShape = RoundedCornerShape(24)
 
-/** One «Знайди» question: picture, the word slot (filled once solved) and four letter tiles. */
+/** One Find question: picture, the word slot (filled once solved) and four letter tiles. */
 @Composable
 fun QuizContent(state: CardUiState, onPick: (Int) -> Unit, onSpeak: () -> Unit, modifier: Modifier = Modifier) {
     val quiz = state.quiz ?: return

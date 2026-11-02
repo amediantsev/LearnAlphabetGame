@@ -1,4 +1,4 @@
-# Абетка MVP Implementation Plan
+# Abetka MVP Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -132,7 +132,7 @@ Expected: FAIL (compilation: `Ukrainian` unresolved).
 
 - [ ] **Step 3: Implement the model and data**
 
-Words, image names and spoken names come verbatim from the spec table (`Слово`, `Файл` without `.png`, `Як вимовити`); highlight index = spec column `Виділити` minus 1. Placeholder emoji: pick a matching one per word where Unicode has it (🚌 🍌 🐻 🍐 🦕 🦝 🦒 🦓 🐋 🦃 🦔 🐱 🦁 ⚽ 🦏 🥒 🐧 🐟 ☀️ 🚜 😊 🦩 ☁️ 🍬 🐢 🧢 🪥 🐴 🎒 🍎 …); otherwise use `""` and the UI shows a letter tile.
+Words, image names and spoken names come verbatim from the spec table (`Word`, `File` without `.png`, `Spoken as`); highlight index = spec column `Highlight` minus 1. Placeholder emoji: pick a matching one per word where Unicode has it (🚌 🍌 🐻 🍐 🦕 🦝 🦒 🦓 🐋 🦃 🦔 🐱 🦁 ⚽ 🦏 🥒 🐧 🐟 ☀️ 🚜 😊 🦩 ☁️ 🍬 🐢 🧢 🪥 🐴 🎒 🍎 …); otherwise use `""` and the UI shows a letter tile.
 
 - [ ] **Step 4: Run tests to verify they pass**
 

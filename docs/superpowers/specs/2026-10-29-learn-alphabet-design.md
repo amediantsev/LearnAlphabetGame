@@ -1,124 +1,124 @@
-# Абетка: дизайн першої версії (MVP)
+# Abetka: first version design (MVP)
 
-Дата: 2026-10-29
+Date: 2026-10-29
 
-## Навіщо
+## Why
 
-Батько (власник проєкту) хоче вчити свою дитину (4 роки) українських літер. Сценарій використання: дорослий сидить поруч із дитиною, разом гортають картки, називають літеру і предмет на картинці. Це спільне заняття, а не гра для самостійного проходження.
+A father (the project owner) wants to teach his child (4 years old) the Ukrainian letters. How it is used: an adult sits next to the child, they flip through the cards together and name the letter and the object in the picture. It is a shared activity, not a game the child plays alone.
 
-Колись застосунок може стати публічним (Google Play) і отримати інші мови та навчання читанню. Зараз це не мета, але структура має не заважати такому розвитку.
+Some day the app may go public (Google Play) and get other languages and reading lessons. That is not the goal now, but the structure should not get in the way of it.
 
-## Цілі
+## Goals
 
-- Картка на кожну з 33 літер української абетки: літера, картинка, слово.
-- Гортання вперед і назад.
-- Два режими порядку: за абеткою і випадковий.
-- Кнопка озвучки: літера, а потім слово.
-- Готовий `.apk`, який власник встановлює на свій телефон вручну.
-- Мова як окремий набір даних. Нова мова додається без зміни коду екранів.
+- A card for each of the 33 letters of the Ukrainian alphabet: letter, picture, word.
+- Flipping forward and back.
+- Two orders: alphabetical and shuffled.
+- A sound button: the letter, then the word.
+- A ready `.apk` that the owner installs on his phone by hand.
+- A language is a separate data set. A new language is added without changing screen code.
 
-## Не-цілі (поки що)
+## Non-goals (for now)
 
-- Навчання читанню, склади, ігри, тести, бали, нагороди.
-- Інші мови, крім української (лише видимий пункт «скоро» у виборі мови).
-- Публікація в Google Play, release-підпис, акаунт розробника.
-- Записаний людський голос (але звук окремим модулем, щоб його можна було додати).
-- Аналітика, реклама, мережа, акаунти.
+- Reading lessons, syllables, games, tests, points, rewards.
+- Languages other than Ukrainian (only a visible "coming soon" item in the language picker).
+- Google Play publishing, release signing, a developer account.
+- A recorded human voice (but sound is a separate module so one can be added).
+- Analytics, ads, network, accounts.
 
-## Анти-цілі (провал, навіть якщо «працює»)
+## Anti-goals (a failure even if it "works")
 
-- Неправильна вимова літери. Дитина має одразу вчити правильні назви літер.
-- Слово, яке чотирирічна дитина не впізнає на картинці.
-- Картинки з чужих джерел або відомі персонажі (авторські права, якщо застосунок стане публічним).
-- Застосунок падає, якщо на телефоні немає українського голосу.
+- A letter pronounced wrong. The child must learn the correct letter names from the start.
+- A word a four-year-old does not recognise from the picture.
+- Pictures taken from other sources, or well-known characters (copyright, if the app goes public).
+- The app crashes when the phone has no Ukrainian voice.
 
-## Рішення власника
+## Owner's decisions
 
-- **Вигляд картки (обрано варіант A з макетів):** зверху велика літера в двох написаннях («А а»), посередині картинка, під нею слово з виділеною літерою («**А**втобус»). Внизу кнопки ◀ 🔊 ▶, **трохи менші**, ніж на макеті (на макеті: стрілки 56 dp, звук 72 dp, тож орієнтир приблизно 48 і 60 dp). Угорі перемикач режиму і шестерня налаштувань.
-- **Режими:** «Абетка» (за порядком) і «Випадково».
-- **Озвучка:** вбудований у телефон синтез мовлення (Android TextToSpeech, українська). Літера вимовляється **своєю назвою** («бе», не звук «б»), потім слово: «бе… банан».
-- **Картинки:** мультяшні, але реалістичні на вигляд, без іменованих персонажів. Генерує власник у ChatGPT за шаблоном нижче. Поки картинок немає, у застосунку стоять заглушки.
-- **Мови:** вибір мови в налаштуваннях, українська доступна, інших поки немає (пункт «скоро»).
+- **Card look (mockup option A chosen):** a big letter on top in both cases («А а»), the picture in the middle, below it the word with the letter highlighted («**А**втобус»). At the bottom ◀ 🔊 ▶ buttons, **a bit smaller** than in the mockup (mockup: arrows 56 dp, sound 72 dp, so roughly 48 and 60 dp). At the top the mode switch and a settings gear.
+- **Modes:** «Абетка» (Alphabet, in order) and «Випадково» (Shuffle).
+- **Speech:** the phone's built-in speech synthesis (Android TextToSpeech, Ukrainian). A letter is spoken by **its name** ("бе", not the sound "б"), then the word: "бе… банан".
+- **Pictures:** cartoon-like but realistic-looking, no named characters. The owner generates them in ChatGPT from the template below. Until there are pictures, the app shows placeholders.
+- **Languages:** a language picker in settings; Ukrainian is available, no others yet ("coming soon" item).
 
-## Що вирішив я (власник погодив загальний опис)
+## My decisions (the owner approved the overall description)
 
-- Гортання також свайпом, не лише стрілками.
-- Тап по картинці теж запускає озвучку.
-- Тільки вертикальна орієнтація.
-- Випадковий режим перемішує всі літери і показує кожну рівно один раз; після останньої тасує заново (і не ставить на початок нового кола ту літеру, яка щойно була). За абеткою після «Я» іде знову «А», і назад з «А» на «Я».
-- Якщо українського голосу немає або синтез недоступний, показується коротка зрозуміла підказка (як встановити голос у налаштуваннях телефону, з кнопкою, що відкриває системні налаштування синтезу). Застосунок не падає, картки працюють далі.
-- Налаштування містять лише вибір мови. Пункт «скоро» в списку мов: «English».
-- У випадковому режимі ◀ повертає по історії вже показаних карток (у межах поточного запуску), а не на «попередню за абеткою». На самому початку історії ◀ нічого не робить.
-- Слово на картці пишеться малими літерами («**а**втобус», «к**и**т»), а виділена літера — тією ж малою, що й у слові. Так виділення однакове для всіх карток.
-- Синтез: застосунок шукає український голос у будь-якому встановленому рушії і віддає перевагу Google (`com.google.android.tts`), бо інші (напр. Samsung) часто не мають української. Вимову назв літер налаштовують під Google-рушій.
-- Перевірка на слух: власник слухає всі 33 картки на своєму телефоні; список назв, які треба підправити, повертається в дані.
-- Стек: Kotlin + Jetpack Compose, один модуль `app`, мінімальна версія Android 8.0 (API 26).
-- Назва застосунку на телефоні: «Абетка». Ідентифікатор пакета: `app.learnalphabet` (змінити можна до першої публікації).
-- Збірка: debug-APK, підписаний стандартним debug-ключем. Цього достатньо для встановлення на свій телефон.
-- **Літери И та Ь, а також Ю:** української побутової лексики на И майже немає, на Ь не буває зовсім, а впізнаваного дитиною слова на Ю я не знайшов. Тому для них слово містить літеру всередині, і виділяється саме вона: к**и**т, кін**ь**, р**ю**кзак. Модель даних це підтримує (див. нижче).
+- Flipping also works by swipe, not only by arrows.
+- Tapping the picture also starts speech.
+- Portrait orientation only.
+- Shuffle mixes all letters and shows each exactly once; after the last one it reshuffles (and does not start the new round with the letter that was just shown). In alphabetical order «Я» is followed by «А» again, and going back from «А» gives «Я».
+- If there is no Ukrainian voice or synthesis is unavailable, a short clear hint is shown (how to install the voice in phone settings, with a button that opens the system speech settings). The app does not crash, cards keep working.
+- Settings contain only the language picker. The "coming soon" item in the language list: "English".
+- In Shuffle, ◀ goes back through the history of cards already shown (within the current launch), not to the "previous one alphabetically". At the very start of the history ◀ does nothing.
+- The word on the card is written in lowercase («**а**втобус», «к**и**т»), and the highlighted letter is the same lowercase letter as in the word. That way highlighting looks the same on every card.
+- Synthesis: the app looks for a Ukrainian voice in any installed engine and prefers Google (`com.google.android.tts`), because others (e.g. Samsung) often lack Ukrainian. Letter-name pronunciation is tuned for the Google engine.
+- Listening check: the owner listens to all 33 cards on his phone; the list of names that need fixing goes back into the data.
+- Stack: Kotlin + Jetpack Compose, a single `app` module, minimum Android 8.0 (API 26).
+- App name on the phone: «Абетка». Package id: `app.learnalphabet` (can be changed before the first publication).
+- Build: a debug APK signed with the standard debug key. That is enough to install on his own phone.
+- **Letters И and Ь, and also Ю:** everyday Ukrainian has almost no words starting with И, none at all with Ь, and I found no word starting with Ю that a child would recognise. So for these the word contains the letter in the middle, and that letter is highlighted: к**и**т, кін**ь**, р**ю**кзак. The data model supports this (see below).
 
-## Модель даних (суть)
+## Data model (the gist)
 
-Кожна мова — це набір даних, а не код:
+Every language is a data set, not code:
 
-- код мови (`uk`), назва для меню («Українська»), локаль для синтезу (`uk-UA`), доступна чи «скоро»;
-- впорядкований список літер. Для кожної:
-  - велика і мала літера («А», «а»);
-  - як вимовляти назву літери (текст для синтезу, напр. «бе»). Окреме поле, бо синтез не завжди вгадує назву окремої літери, і його доводиться підбирати;
-  - слово («банан») і, за потреби, текст слова для синтезу, якщо треба підправити наголос чи вимову;
-  - котру літеру в слові виділити (позиція), бо для И, Ь, Ю вона не перша;
-  - ім'я файлу картинки;
-  - заглушка на час, поки картинки немає (емодзі або кольорова плитка з літерою).
+- language code (`uk`), menu name («Українська»), locale for synthesis (`uk-UA`), available or "coming soon";
+- an ordered list of letters. For each:
+  - upper and lower case («А», «а»);
+  - how to pronounce the letter name (text for synthesis, e.g. "бе"). A separate field, because synthesis does not always guess the name of a single letter, and it has to be tuned;
+  - the word ("банан") and, when needed, the word text for synthesis, if stress or pronunciation needs fixing;
+  - which letter in the word to highlight (position), because for И, Ь, Ю it is not the first one;
+  - the picture file name;
+  - a placeholder until the picture exists (an emoji or a coloured tile with the letter).
 
-Тексти інтерфейсу (назви режимів, підказки) — через звичайні Android string resources, щоб їх теж можна було перекладати.
+UI texts (mode names, hints) go through regular Android string resources, so they can be translated too.
 
-Звук ховається за невеликим інтерфейсом «озвучити картку», щоб пізніше замінити синтез на записані файли.
+Sound sits behind a small "speak a card" interface, so synthesis can later be replaced with recorded files.
 
-## Список слів (українська)
+## Word list (Ukrainian)
 
-Назви літер для синтезу — стартові значення; їх треба перевірити на слух в емуляторі й підправити, якщо синтез звучить неправильно.
+Letter names for synthesis are starting values; they have to be checked by ear on the emulator and fixed if synthesis sounds wrong.
 
-| № | Літера | Як вимовити | Слово | Виділити | Предмет для промпту (англ.) | Файл |
+| # | Letter | Spoken as | Word | Highlight | Prompt object (English) | File |
 |---|---|---|---|---|---|---|
-| 1 | А а | а | автобус | 1-ша | a yellow city bus | 01-avtobus.png |
-| 2 | Б б | бе | банан | 1-ша | a ripe yellow banana | 02-banan.png |
-| 3 | В в | ве | ведмідь | 1-ша | a friendly brown bear | 03-vedmid.png |
-| 4 | Г г | ге | груша | 1-ша | a green-yellow pear | 04-hrusha.png |
-| 5 | Ґ ґ | ґе | ґудзик | 1-ша | a big round sewing button with four holes | 05-gudzyk.png |
-| 6 | Д д | де | динозавр | 1-ша | a friendly green dinosaur | 06-dynozavr.png |
-| 7 | Е е | е | екскаватор | 1-ша | a yellow excavator (digger) | 07-ekskavator.png |
-| 8 | Є є | є | єнот | 1-ша | a raccoon | 08-yenot.png |
-| 9 | Ж ж | же | жираф | 1-ша | a giraffe | 09-zhyraf.png |
-| 10 | З з | зе | зебра | 1-ша | a zebra | 10-zebra.png |
-| 11 | И и | и | кит | 2-га | a blue whale with a water spout | 11-kyt.png |
-| 12 | І і | і | індик | 1-ша | a turkey (the bird) | 12-indyk.png |
-| 13 | Ї ї | ї | їжак | 1-ша | a hedgehog | 13-yizhak.png |
-| 14 | Й й | йот | йогурт | 1-ша | a cup of yogurt with a spoon | 14-yohurt.png |
-| 15 | К к | ка | кіт | 1-ша | a cat | 15-kit.png |
-| 16 | Л л | ел | лев | 1-ша | a lion | 16-lev.png |
-| 17 | М м | ем | м'яч | 1-ша | a colorful ball | 17-miach.png |
-| 18 | Н н | ен | носоріг | 1-ша | a rhinoceros | 18-nosorih.png |
-| 19 | О о | о | огірок | 1-ша | a green cucumber | 19-ohirok.png |
-| 20 | П п | пе | пінгвін | 1-ша | a penguin | 20-pinhvin.png |
-| 21 | Р р | ер | риба | 1-ша | a colorful fish | 21-ryba.png |
-| 22 | С с | ес | сонце | 1-ша | a smiling sun | 22-sontse.png |
-| 23 | Т т | те | трактор | 1-ша | a red tractor | 23-traktor.png |
-| 24 | У у | у | усмішка | 1-ша | a big happy smile (smiling face) | 24-usmishka.png |
-| 25 | Ф ф | еф | фламінго | 1-ша | a pink flamingo | 25-flamingo.png |
-| 26 | Х х | ха | хмарка | 1-ша | a fluffy white cloud | 26-khmarka.png |
-| 27 | Ц ц | це | цукерка | 1-ша | a wrapped candy | 27-tsukerka.png |
-| 28 | Ч ч | че | черепаха | 1-ша | a turtle | 28-cherepakha.png |
-| 29 | Ш ш | ша | шапка | 1-ша | a warm knitted winter hat | 29-shapka.png |
-| 30 | Щ щ | ща | щітка | 1-ша | a toothbrush | 30-shchitka.png |
-| 31 | Ь ь | м'який знак | кінь | 4-та | a horse | 31-kin.png |
-| 32 | Ю ю | ю | рюкзак | 2-га | a child's backpack | 32-riukzak.png |
-| 33 | Я я | я | яблуко | 1-ша | a red apple | 33-yabluko.png |
+| 1 | А а | а | автобус | 1st | a yellow city bus | 01-avtobus.png |
+| 2 | Б б | бе | банан | 1st | a ripe yellow banana | 02-banan.png |
+| 3 | В в | ве | ведмідь | 1st | a friendly brown bear | 03-vedmid.png |
+| 4 | Г г | ге | груша | 1st | a green-yellow pear | 04-hrusha.png |
+| 5 | Ґ ґ | ґе | ґудзик | 1st | a big round sewing button with four holes | 05-gudzyk.png |
+| 6 | Д д | де | динозавр | 1st | a friendly green dinosaur | 06-dynozavr.png |
+| 7 | Е е | е | екскаватор | 1st | a yellow excavator (digger) | 07-ekskavator.png |
+| 8 | Є є | є | єнот | 1st | a raccoon | 08-yenot.png |
+| 9 | Ж ж | же | жираф | 1st | a giraffe | 09-zhyraf.png |
+| 10 | З з | зе | зебра | 1st | a zebra | 10-zebra.png |
+| 11 | И и | и | кит | 2nd | a blue whale with a water spout | 11-kyt.png |
+| 12 | І і | і | індик | 1st | a turkey (the bird) | 12-indyk.png |
+| 13 | Ї ї | ї | їжак | 1st | a hedgehog | 13-yizhak.png |
+| 14 | Й й | йот | йогурт | 1st | a cup of yogurt with a spoon | 14-yohurt.png |
+| 15 | К к | ка | кіт | 1st | a cat | 15-kit.png |
+| 16 | Л л | ел | лев | 1st | a lion | 16-lev.png |
+| 17 | М м | ем | м'яч | 1st | a colorful ball | 17-miach.png |
+| 18 | Н н | ен | носоріг | 1st | a rhinoceros | 18-nosorih.png |
+| 19 | О о | о | огірок | 1st | a green cucumber | 19-ohirok.png |
+| 20 | П п | пе | пінгвін | 1st | a penguin | 20-pinhvin.png |
+| 21 | Р р | ер | риба | 1st | a colorful fish | 21-ryba.png |
+| 22 | С с | ес | сонце | 1st | a smiling sun | 22-sontse.png |
+| 23 | Т т | те | трактор | 1st | a red tractor | 23-traktor.png |
+| 24 | У у | у | усмішка | 1st | a big happy smile (smiling face) | 24-usmishka.png |
+| 25 | Ф ф | еф | фламінго | 1st | a pink flamingo | 25-flamingo.png |
+| 26 | Х х | ха | хмарка | 1st | a fluffy white cloud | 26-khmarka.png |
+| 27 | Ц ц | це | цукерка | 1st | a wrapped candy | 27-tsukerka.png |
+| 28 | Ч ч | че | черепаха | 1st | a turtle | 28-cherepakha.png |
+| 29 | Ш ш | ша | шапка | 1st | a warm knitted winter hat | 29-shapka.png |
+| 30 | Щ щ | ща | щітка | 1st | a toothbrush | 30-shchitka.png |
+| 31 | Ь ь | м'який знак | кінь | 4th | a horse | 31-kin.png |
+| 32 | Ю ю | ю | рюкзак | 2nd | a child's backpack | 32-riukzak.png |
+| 33 | Я я | я | яблуко | 1st | a red apple | 33-yabluko.png |
 
-Слабкі місця, які варто перевірити з дитиною: «ґудзик», «індик», «носоріг», «усмішка», «єнот». Якщо якесь слово йому незнайоме, власник може його замінити (це лише рядок у даних і одна картинка).
+Weak spots worth checking with the child: «ґудзик» (button), «індик» (turkey), «носоріг» (rhinoceros), «усмішка» (smile), «єнот» (raccoon). If a word is unfamiliar to him, the owner can replace it (it is just one line of data and one picture).
 
-## Картинки: шаблон промпту для ChatGPT
+## Pictures: ChatGPT prompt template
 
-Один стиль для всіх 33 картинок. Найкраще генерувати в одному чаті: спершу вставити шаблон, а далі просити «наступну: <предмет>».
+One style for all 33 pictures. It works best in a single chat: paste the template first, then ask for "next: <object>".
 
 ```
 Create a children's picture-book illustration of [OBJECT].
@@ -135,22 +135,22 @@ ground, no other objects, no frame.
 Format: square, 1024x1024 PNG.
 ```
 
-`[OBJECT]` — значення з колонки «Предмет для промпту». Готові файли власник називає за колонкою «Файл» і кладе в папку проєкту `art/uk/`. Перетворення у формат для застосунку (зменшення, WebP) — справа збірки.
+`[OBJECT]` is the value from the "Prompt object" column. The owner names the finished files after the "File" column and puts them in the project folder `art/uk/`. Converting them for the app (downscaling, WebP) is the build's job.
 
-## Обмеження
+## Constraints
 
-- Цільові телефони: **Xiaomi Redmi Note 9** (дитина; MIUI, Android 10–12) і **Xiaomi 14T Pro** (власник; HyperOS, Android 14+). Застосунок має встановлюватися і звучати однаково на обох. На глобальних прошивках Xiaomi голосом за замовчуванням зазвичай є Google, але українську мову голосу може знадобитися докачати; підказка в застосунку має це покривати. Слабший Redmi Note 9 — орієнтир для швидкодії (гортання без ривків, картинки не завеликі).
-- Перевірка на слух — на обох телефонах.
+- Target phones: **Xiaomi Redmi Note 9** (the child's; MIUI, Android 10–12) and **Xiaomi 14T Pro** (the owner's; HyperOS, Android 14+). The app must install and sound the same on both. On global Xiaomi firmware the default voice is usually Google, but the Ukrainian voice may need to be downloaded; the in-app hint must cover that. The weaker Redmi Note 9 is the performance baseline (smooth flipping, pictures not too large).
+- Listening check on both phones.
 
-- Збирається на Mac власника. Android SDK вже є (`~/Library/Android/sdk`, platform android-34, build-tools 34/35). Встановлена Java 8 застаріла, потрібна JDK 17 (поставити через Homebrew).
-- Без мережі, без дозволів, крім стандартних.
-- Розмір APK бажано тримати невеликим (картинки стиснути).
+- Built on the owner's Mac. The Android SDK is already there (`~/Library/Android/sdk`, platform android-34, build-tools 34/35). The installed Java 8 is too old; JDK 17 is needed (install via Homebrew).
+- No network, no permissions beyond the standard ones.
+- Keep the APK small (compress pictures).
 
-## Залишено на розсуд виконавця
+## Left to the builder
 
-- Точний вигляд: кольори, шрифт, відступи, анімація гортання (орієнтир — макет A: кремовий фон, теплі кольори, літера помаранчево-червона).
-- Як саме зберігаються дані мови (Kotlin-об'єкти, JSON в assets тощо), якщо дотримано модель вище.
-- Як підібрати вимову окремих назв літер, щоб синтез звучав правильно.
-- Чи запам'ятовувати обраний режим і поточну картку між запусками.
-- Вигляд заглушок.
-- Тести: як мінімум логіка порядку (абетка, випадкове коло без повторів) і цілісність даних (33 літери, кожна має слово, позиція виділення вказує на цю літеру в слові).
+- The exact look: colours, font, spacing, flip animation (guide: mockup A, cream background, warm colours, orange-red letter).
+- How language data is stored (Kotlin objects, JSON in assets, etc.), as long as the model above holds.
+- How to tune the pronunciation of individual letter names so synthesis sounds right.
+- Whether to remember the chosen mode and current card between launches.
+- How the placeholders look.
+- Tests: at least the order logic (alphabetical, shuffled round without repeats) and data integrity (33 letters, each has a word, the highlight position points at that letter in the word).
