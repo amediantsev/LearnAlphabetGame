@@ -1,32 +1,32 @@
-# Абетка
+# Abetka
 
-Android-застосунок для вивчення українських літер: картка на кожну літеру (літера, картинка, слово), гортання, режими «Абетка» та «Випадково», озвучка літери й слова.
+An Android app for learning the Ukrainian alphabet: a card for every letter (letter, picture, word), flipping through cards, Alphabet and Shuffle modes, a Find quiz, and speech for the letter and the word. The app's own UI is in Ukrainian; its name on the phone is «Абетка».
 
-Дизайн: [docs/superpowers/specs/2026-10-29-learn-alphabet-design.md](docs/superpowers/specs/2026-10-29-learn-alphabet-design.md)
+Design: [docs/superpowers/specs/2026-10-29-learn-alphabet-design.md](docs/superpowers/specs/2026-10-29-learn-alphabet-design.md)
 
-## Режими
+## Modes
 
-- **Абетка** і **Випадково**: картки для вивчення (літера, картинка, слово) за порядком або впереміш.
-- **Знайди**: перевірка для закріплення. Застосунок показує картинку, сам один раз озвучує «а… автобус», і дитина шукає цю літеру серед чотирьох. Неправильна плитка червоніє й вимикається, тож дитина завжди доходить до правильної. Правильна стає зеленою з ✓, з'являється слово, а далі переходять кнопкою ▶ (нею ж можна пропустити питання).
+- **Alphabet** («Абетка») and **Shuffle** («Випадково»): learning cards (letter, picture, word), in order or shuffled.
+- **Find** («Знайди»): a check to consolidate what was learnt. The app shows a picture, speaks "а… автобус" once by itself, and the child looks for that letter among four. A wrong tile turns red and is disabled, so the child always reaches the right one. The right one turns green with ✓, the word appears, and ▶ moves on (▶ can also skip a question).
 
-У ⚙️ «Налаштування» можна вибрати, що озвучувати: «А… автобус» (літеру і слово) або тільки «А». Вибір діє в усіх режимах і зберігається після перезапуску.
+In ⚙️ «Налаштування» (Settings) you can choose what is spoken: the letter and the word ("А… автобус") or just the letter ("А"). The choice applies to all modes and is kept after a restart.
 
-Дизайн режиму «Знайди»: [docs/superpowers/specs/2026-10-30-quiz-mode-design.md](docs/superpowers/specs/2026-10-30-quiz-mode-design.md). Пізніше планується вибір набору літер для перевірки.
+Find mode design: [docs/superpowers/specs/2026-10-30-quiz-mode-design.md](docs/superpowers/specs/2026-10-30-quiz-mode-design.md). Choosing a subset of letters to check is planned.
 
-## Завантажити готовий APK
+## Download a ready APK
 
-Остання збірка з `main`: [abetka-debug.apk](https://github.com/amediantsev/LearnAlphabetGame/releases/latest/download/abetka-debug.apk). Посилання можна відкрити одразу на телефоні.
+Latest build from `main`: [abetka-debug.apk](https://github.com/amediantsev/LearnAlphabetGame/releases/latest/download/abetka-debug.apk). You can open the link right on the phone.
 
-GitHub Actions збирає APK автоматично (`.github/workflows/apk.yml`):
+GitHub Actions builds the APK automatically (`.github/workflows/apk.yml`):
 
-- на кожен PR: тести, збірка і пре-реліз `pr-<номер>`; у PR з'являється коментар із посиланням на APK. Коли PR закривають, пре-реліз видаляється;
-- на кожен пуш у `main`: реліз «Абетка: остання збірка» (посилання вище).
+- for every PR: tests, a build and a `pr-<number>` pre-release; the PR gets a comment with a link to the APK. When the PR is closed, the pre-release is deleted;
+- for every push to `main`: the "Abetka: latest build" release (link above).
 
-Усі збірки, і з GitHub, і з будь-якого Mac, підписані одним ключем `app/debug.keystore`, тому нова версія встановлюється поверх старої. Це debug-ключ, він не секретний; для Google Play знадобиться окремий release-ключ.
+All builds, from GitHub and from any Mac, are signed with the same key `app/debug.keystore`, so a new version installs over the old one. It is a debug key and not a secret; Google Play will need a separate release key.
 
-## Зібрати APK самому
+## Build the APK yourself
 
-Потрібні JDK 17 (`brew install openjdk@17`) і Android SDK (`~/Library/Android/sdk`).
+You need JDK 17 (`brew install openjdk@17`) and the Android SDK (`~/Library/Android/sdk`).
 
 ```bash
 export JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
@@ -34,30 +34,30 @@ export JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
 mkdir -p dist && cp app/build/outputs/apk/debug/app-debug.apk dist/abetka-debug.apk
 ```
 
-## Додати картинки
+## Add pictures
 
-1. Згенеруйте картинку в ChatGPT за шаблоном із дизайн-документа (розділ «Картинки: шаблон промпту»).
-2. Збережіть її як PNG з назвою з колонки «Файл», наприклад `01-avtobus.png`, у папку `art/uk/`.
-3. Запустіть `tools/import-art.sh uk`. Скрипт зменшить картинки до 512×512 і перетворить у WebP (потрібен `brew install webp`).
-4. Зберіть APK заново.
+1. Generate a picture in ChatGPT with the template from the design doc (section "Pictures: ChatGPT prompt template").
+2. Save it as a PNG named after the "File" column, e.g. `01-avtobus.png`, in the `art/uk/` folder.
+3. Run `tools/import-art.sh uk`. The script downscales the pictures to 512×512 and converts them to WebP (needs `brew install webp`).
+4. Build the APK again.
 
-Поки картинки немає, на картці показується емодзі або плитка з літерою.
+Until a picture exists, the card shows an emoji or a tile with the letter.
 
-## Встановити на телефон Xiaomi
+## Install on a Xiaomi phone
 
-1. Відкрийте на телефоні посилання на APK (див. вище) або перешліть `dist/abetka-debug.apk` (Telegram, Google Drive, кабель).
-2. Відкрийте файл. Телефон попросить дозволити встановлення з невідомих джерел для програми, через яку ви відкрили файл (наприклад, «Файли» чи Telegram). Дозвольте.
-3. Якщо HyperOS/MIUI покаже перевірку безпеки, оберіть «Все одно встановити». Попередження з'являється тому, що застосунок не з Google Play.
-4. Нову версію встановлюйте так само, поверх старої.
+1. Open the APK link (see above) on the phone, or send `dist/abetka-debug.apk` to it (Telegram, Google Drive, cable).
+2. Open the file. The phone will ask to allow installing unknown apps for the app you opened the file with (for example, Files or Telegram). Allow it.
+3. If HyperOS/MIUI shows a security check, choose "Install anyway". The warning appears because the app is not from Google Play.
+4. Install new versions the same way, over the old one.
 
-## Український голос
+## Ukrainian voice
 
-Озвучка використовує «Синтезатор мовлення Google». Якщо після натискання 🔊 застосунок пише, що немає голосу:
+Speech uses "Speech Services by Google". If after pressing 🔊 the app says there is no voice:
 
-Налаштування → Додаткові налаштування → Мова та введення → Синтез мовлення (перетворення тексту в мовлення) → Синтезатор мовлення Google ⚙️ → Встановити голосові дані → Українська.
+Settings → Additional settings → Languages & input → Text-to-speech output → Speech Services by Google ⚙️ → Install voice data → Ukrainian.
 
-Якщо синтезатора Google немає, встановіть його з Google Play («Speech Services by Google»).
+(The exact menu names depend on the phone's language and firmware.) If Speech Services by Google is missing, install it from Google Play.
 
-## Вимова літер
+## Letter pronunciation
 
-Що саме вимовляє синтез для назви кожної літери, задано в `app/src/main/java/app/learnalphabet/alphabet/Ukrainian.kt` (третій параметр, наприклад `"бе"`). Якщо якась літера звучить неправильно, змініть цей текст і зберіть APK заново.
+What synthesis says for each letter name is set in `app/src/main/java/app/learnalphabet/alphabet/Ukrainian.kt` (the third parameter, e.g. `"бе"`). If a letter sounds wrong, change that text and build the APK again.

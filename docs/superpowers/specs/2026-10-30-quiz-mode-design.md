@@ -1,116 +1,116 @@
-# Абетка: режим «Знайди» (перевірка знання літер)
+# Abetka: the Find mode («Знайди», letter knowledge check)
 
-Дата: 2026-10-30
+Date: 2026-10-30
 
-Доповнює [дизайн першої версії](2026-10-29-learn-alphabet-design.md). Усе, що там сказано про мови, озвучку, картинки і цільові телефони, діє й тут.
+Extends the [first version design](2026-10-29-learn-alphabet-design.md). Everything said there about languages, speech, pictures and target phones applies here too.
 
-## Навіщо
+## Why
 
-Дитина вже трохи вивчила літери за картками. Тепер знання треба закріплювати: не лише дивитися на літеру й чути її назву, а самому знаходити потрібну літеру серед інших. Як і раніше, дорослий сидить поруч, і це спільне заняття.
+The child has already learnt some letters from the cards. Now the knowledge needs to be consolidated: not just looking at a letter and hearing its name, but finding the right letter among others on his own. As before, an adult sits next to the child, and it is a shared activity.
 
-Вправа: дитина бачить картинку, чує «А… автобус» (точно так, як у картках) і серед чотирьох літер шукає ту, яку почула. Тобто вона впізнає **вигляд** літери за її **назвою**. Картинка підтримує й тримає увагу, але відповідь не підказує.
+The exercise: the child sees a picture, hears "А… автобус" (exactly as on the cards) and looks for the letter he heard among four. So he recognises a letter's **shape** from its **name**. The picture supports and holds attention but does not give the answer away.
 
-## Цілі
+## Goals
 
-- Новий режим «Знайди» поруч із «Абетка» і «Випадково».
-- Питання: картинка, кнопка 🔊 і чотири великі плитки з літерами, одна з яких правильна.
-- Озвучка питання вмикається сама один раз, коли з'являється нове питання.
-- Помилитися можна, програти не можна: кожна неправильна спроба лише прибирає варіант, і дитина завжди доходить до правильної літери.
-- Правильна відповідь чітко видна (зелений колір, галочка), і показується слово з виділеною літерою.
+- A new mode «Знайди» (Find) next to «Абетка» (Alphabet) and «Випадково» (Shuffle).
+- A question: a picture, a 🔊 button and four big letter tiles, one of them correct.
+- The question is spoken automatically once, when a new question appears.
+- You can make mistakes but cannot lose: each wrong try only removes an option, and the child always reaches the right letter.
+- The right answer is clearly visible (green colour, a checkmark), and the word with the highlighted letter is shown.
 
-## Не-цілі (поки що, але записано на майбутнє)
+## Non-goals (for now, but noted for the future)
 
-- **Вибір набору літер для перевірки.** Поки перевіряються всі 33 літери, і неправильні варіанти теж беруться з усіх 33. Пізніше варто дати дорослому сформувати вибірку, наприклад лише ті літери, які дитина вже вивчила. Код має не заважати цьому: набір літер для питань і для варіантів — окремий параметр, а не жорстко «вся мова».
-- **Окремі розділи «вивчення» і «перевірка».** Поки режим вмикається третьою кнопкою в тому ж перемикачі. Власник планує пізніше розділити ці частини кардинальніше. Логіку перевірки тримати окремо від логіки карток, щоб таке розділення змінювало лише інтерфейс.
-- **Звукові ефекти** (дзвіночок за правильну відповідь тощо). Жодних звуків, окрім озвучки питання. Власник, імовірно, додасть їх пізніше.
-- Бали, рахунок, статистика, таймери, рівні складності.
+- **Choosing the set of letters to check.** For now all 33 letters are asked, and wrong options are also drawn from all 33. Later the adult should be able to pick a subset, for example only the letters the child has already learnt. The code should not get in the way: the set of letters for questions and for options is a separate parameter, not hard-wired to "the whole language".
+- **Separate "learning" and "checking" sections.** For now the mode is a third button in the same switch. The owner plans to separate these parts more radically later. Keep the quiz logic apart from the card logic, so such a split only changes the UI.
+- **Sound effects** (a chime for a right answer, etc.). No sounds except the spoken question. The owner will probably add them later.
+- Points, score, statistics, timers, difficulty levels.
 
-## Анти-цілі (провал, навіть якщо «працює»)
+## Anti-goals (a failure even if it "works")
 
-- Дитина може «програти», застрягти або отримати покарання за помилку. Будь-який раунд закінчується правильною відповіддю.
-- Помилку видно як щось страшне: різкий звук, вібрація, великий червоний екран. Помилка має бути помітною, але спокійною.
-- Відповідь видно до того, як дитина відповіла (наприклад, слово «**а**втобус» під картинкою).
-- Озвучка в цьому режимі звучить інакше, ніж у картках.
-- Озвучка сама вмикається повторно (при кожній спробі, при поверненні в застосунок тощо). Вона вмикається сама лише один раз на питання.
-- Автоматична озвучка викликає вікно «Немає українського голосу» сама по собі, без натискання.
+- The child can "lose", get stuck or be punished for a mistake. Every round ends with the right answer.
+- A mistake looks scary: a harsh sound, vibration, a big red screen. A mistake should be noticeable but calm.
+- The answer is visible before the child answers (for example, the word «**а**втобус» under the picture).
+- Speech in this mode sounds different from the cards.
+- Speech starts by itself again (on every try, on returning to the app, etc.). It starts by itself only once per question.
+- Automatic speech brings up the "No Ukrainian voice" dialog on its own, without a tap.
 
-## Рішення власника
+## Owner's decisions
 
-- Озвучка питання така сама, як у картках: назва літери, пауза, слово («а… автобус»).
-- Озвучка вмикається автоматично один раз при появі нового питання. Повторити можна кнопкою 🔊 або тапом по картинці.
-- **4 варіанти, сітка 2×2** (обрано варіант A з макетів; 3 варіанти в ряд відкинуто).
-- Неправильна відповідь: плитка стає червоною (блідою, з ✕) і більше не натискається. Решта лишаються активними.
-- Правильна відповідь: зелений колір і галочка; конкретний вигляд власник довірив виконавцю (див. нижче, погоджено на макеті).
-- Жодних звуків у жодному сценарії, крім озвучки.
-- Перевіряються всі літери мови, без вибірки.
-- Перемикач режимів: «Абетка · Випадково · Знайди» (погоджено на макеті, тимчасово).
+- The question is spoken the same way as on the cards: letter name, pause, word ("а… автобус").
+- Speech starts automatically once when a new question appears. It can be repeated with 🔊 or by tapping the picture.
+- **4 options, a 2×2 grid** (mockup option A chosen; 3 options in a row rejected).
+- Wrong answer: the tile turns red (pale, with ✕) and can no longer be tapped. The rest stay active.
+- Right answer: green colour and a checkmark; the exact look the owner left to the builder (see below, approved on the mockup).
+- No sounds in any scenario, except speech.
+- All letters of the language are asked, no subset.
+- Mode switch: «Абетка · Випадково · Знайди» (approved on the mockup, temporary).
 
-## Що вирішив я (погоджено на макеті)
+## My decisions (approved on the mockup)
 
-Макет: `.superpowers/brainstorm/65269-1793371405/content/quiz-layout.html` (не в git), перший ряд — три моменти раунду.
+Mockup: `.superpowers/brainstorm/65269-1793371405/content/quiz-layout.html` (not in git), first row: three moments of a round.
 
-### Екран питання
+### Question screen
 
-- Згори той самий перемикач режимів і ⚙️.
-- Картинка менша, ніж у картках (приблизно половина ширини або менше), щоб головними були плитки.
-- Під картинкою місце для слова. **До правильної відповіді воно порожнє**, але місце зарезервоване, щоб нічого не стрибало, коли слово з'являється.
-- Чотири квадратні плитки 2×2: біле тло, тонка рамка, велика темна **велика** літера («А», без малої «а»). Плитки якомога більші, щоб дитячий палець не промахувався.
-- Унизу: 🔊 по центру і ▶ праворуч. ◀ у цьому режимі немає (місце порожнє, щоб 🔊 лишалася по центру).
+- At the top, the same mode switch and ⚙️.
+- The picture is smaller than on the cards (about half the width or less), so the tiles are the main thing.
+- Under the picture, space for the word. **It is empty until the right answer**, but the space is reserved so nothing jumps when the word appears.
+- Four square tiles in a 2×2 grid: white background, thin border, a big dark **uppercase** letter («А», without the lowercase «а»). Tiles as big as possible, so a child's finger does not miss.
+- At the bottom: 🔊 in the centre and ▶ on the right. There is no ◀ in this mode (the slot stays empty so 🔊 stays centred).
 
-### Неправильна спроба
+### Wrong try
 
-- Плитка коротко хитається (приблизно 0,3 с), потім лишається блідо-червоною з ✕ у куточку й більше не реагує на дотик.
-- Нічого більше не змінюється: озвучка не вмикається, повідомлень немає.
+- The tile shakes briefly (about 0.3 s), then stays pale red with ✕ in the corner and no longer reacts to touch.
+- Nothing else changes: no speech, no messages.
 
-### Правильна відповідь
+### Right answer
 
-- Плитка стає зеленою (`#4C9F70`, як кнопки ▶) з білою літерою, отримує ✓ у куточку і трохи збільшується (~6%).
-- Інші плитки блякнуть (і неправильні, і ще не натиснуті) й більше не натискаються.
-- Під картинкою з'являється слово з виділеною літерою, як у картках («**а**втобус», «к**и**т»).
-- **Далі автоматично не переходимо.** Кнопка ▶ стає зеленою, більшою і «світиться» (м'яке кільце навколо). Дитина сама натискає «далі», а дорослий має час похвалити й поговорити.
-- Озвучка повторно не вмикається (але 🔊 і тап по картинці працюють).
+- The tile turns green (`#4C9F70`, like the ▶ buttons) with a white letter, gets ✓ in the corner and grows a little (~6%).
+- The other tiles fade (both wrong and not yet tapped) and can no longer be tapped.
+- The word with the highlighted letter appears under the picture, as on the cards («**а**втобус», «к**и**т»).
+- **No automatic move on.** The ▶ button turns green, bigger and "glows" (a soft ring around it). The child presses "next" himself, and the adult has time to praise and talk.
+- Speech does not start again (but 🔊 and tapping the picture work).
 
-### Перехід далі і пропуск
+### Moving on and skipping
 
-- ▶ або свайп ліворуч: наступне питання. Нове питання з'являється з тим самим ковзанням, що й картки, і саме вмикає озвучку.
-- До правильної відповіді ▶ сіра, але працює: так можна пропустити літеру, якої дитина ще не знає. Пропущена літера в цьому колі вже не повториться.
-- Свайп праворуч у цьому режимі нічого не робить: повернення до попереднього питання немає.
+- ▶ or a swipe left: the next question. A new question slides in the same way as cards and starts speech by itself.
+- Before the right answer ▶ is grey but works: this skips a letter the child does not know yet. A skipped letter does not come back in this round.
+- A swipe right does nothing in this mode: there is no going back to the previous question.
 
-### Порядок питань і варіанти
+### Question order and options
 
-- Літери питаються у випадковому порядку колами: кожна літера рівно раз за коло, і нове коло не починається з літери, яка щойно була (як у режимі «Випадково»).
-- Три неправильні варіанти — випадкові різні літери тієї ж мови, крім правильної. Схожі на вигляд літери (Ш/Щ, І/Ї, Е/Є, Г/Ґ, И/Й) не відфільтровуються і не підбираються навмисно.
-- Місце правильної плитки в сітці випадкове.
-- Варіанти питання фіксуються, коли питання з'являється, і не змінюються до переходу далі.
+- Letters are asked in random order in rounds: each letter exactly once per round, and a new round does not start with the letter that was just asked (as in Shuffle).
+- The three wrong options are random distinct letters of the same language, other than the right one. Look-alike letters (Ш/Щ, І/Ї, Е/Є, Г/Ґ, И/Й) are neither filtered out nor picked on purpose.
+- The right tile's place in the grid is random.
+- A question's options are fixed when it appears and do not change until moving on.
 
-### Перемикання режимів і мови
+### Switching modes and language
 
-- Увімкнули «Знайди»: одразу нове питання (випадкова літера), озвучка вмикається сама.
-- Повернулися з «Знайди» в «Абетка» чи «Випадково»: відкривається картка тієї літери, про яку було останнє питання.
-- Повторне увімкнення «Знайди» починає нове питання; стан попереднього (помилки, розв'язано) не зберігається. Коло питань при цьому продовжується: літери, які вже питали в цьому колі, не повторюються.
-- Перше питання після входу в режим не може бути літерою, картка якої щойно була на екрані: дитина щойно бачила відповідь.
-- Зміна мови в режимі «Знайди»: нове коло і нове питання новою мовою. (Поки що доступна лише українська.)
-- Між запусками застосунку нічого не запам'ятовується.
+- Turning on Find: a new question right away (random letter), speech starts by itself.
+- Going back from Find to Alphabet or Shuffle: the card of the letter of the last question opens.
+- Turning Find on again starts a new question; the state of the previous one (mistakes, solved) is not kept. The round continues though: letters already asked in this round are not repeated.
+- The first question after entering the mode cannot be the letter whose card was just on screen: the child has just seen the answer.
+- Changing the language in Find: a new round and a new question in the new language. (Only Ukrainian is available for now.)
+- Nothing is remembered between app launches.
 
-### Автоматична озвучка: точні правила
+### Automatic speech: exact rules
 
-- Вмикається один раз на кожне нове питання: при вході в режим і при кожному переході далі.
-- Правило зручно уявляти як прапорець «чекає на автоозвучку». Нове питання його ставить. Коли прапорець стоїть і голос готовий, озвучка запускається, і прапорець знімається. Невдала спроба (голос зламався посеред озвучки) теж вважається використаною.
-- Якщо голос ще готується (застосунок щойно запустився), прапорець чекає, і озвучка вмикається, щойно голос стане готовим.
-- Коли застосунок іде у фон, прапорець знімається. Тому повернення в застосунок озвучку не вмикає, навіть якщо голос саме тоді став готовим (наприклад, дорослий щойно встановив український голос у налаштуваннях). Після повернення озвучку вмикають кнопкою 🔊.
-- Якщо українського голосу немає або синтез недоступний, автоматична озвучка просто мовчить. Підказка «Немає українського голосу» з'являється, як і раніше, лише після натискання 🔊 або тапу по картинці.
-- Натискання на плитки озвучку не перериває.
+- It starts once for every new question: on entering the mode and on every move on.
+- The rule is easiest to picture as a "waiting for auto-speech" flag. A new question sets it. When the flag is set and the voice is ready, speech starts and the flag is cleared. A failed try (the voice broke mid-speech) also counts as used.
+- If the voice is still getting ready (the app just started), the flag waits, and speech starts as soon as the voice is ready.
+- When the app goes to the background, the flag is cleared. So returning to the app does not start speech, even if the voice became ready just then (for example, the adult just installed the Ukrainian voice in settings). After returning, speech is started with 🔊.
+- If there is no Ukrainian voice or synthesis is unavailable, automatic speech simply stays silent. The "No Ukrainian voice" hint appears, as before, only after tapping 🔊 or the picture.
+- Tapping tiles does not interrupt speech.
 
-## Обмеження
+## Constraints
 
-- Ті самі цільові телефони: Xiaomi Redmi Note 9 (≈393×851 dp) і Xiaomi 14T Pro. Екран має вміщатися без прокрутки й обрізання на обох, зокрема із системним шрифтом ×1,3.
-- Без нових дозволів, без мережі, без нових залежностей, якщо можна обійтися.
-- Режими «Абетка» і «Випадково» працюють як раніше.
-- Робота йде через PR; GitHub Actions збирає APK для PR автоматично.
+- The same target phones: Xiaomi Redmi Note 9 (≈393×851 dp) and Xiaomi 14T Pro. The screen must fit without scrolling or clipping on both, including with system font ×1.3.
+- No new permissions, no network, no new dependencies if it can be avoided.
+- Alphabet and Shuffle work as before.
+- Work goes through PRs; GitHub Actions builds an APK for each PR automatically.
 
-## Залишено на розсуд виконавця
+## Left to the builder
 
-- Точні розміри, відступи, тривалість і форма анімацій (у межах описаного вище).
-- Як розмір літери на плитці залежить від розміру плитки і системного шрифту (головне — не обрізатися).
-- Структура коду: окрема модель стану питання, окремий view model чи розширення наявного — за умови, що логіка перевірки (варіанти, спроби, «розв'язано», порядок питань, правило автоозвучки) тестується юніт-тестами без Android.
-- Тексти для доступності (contentDescription) для плиток і кнопок.
+- Exact sizes, spacing, duration and shape of animations (within what is described above).
+- How the letter size on a tile depends on the tile size and the system font (the main thing is not to clip).
+- Code structure: a separate question state model, a separate view model or an extension of the existing one, as long as the quiz logic (options, tries, "solved", question order, the auto-speech rule) is covered by unit tests without Android.
+- Accessibility texts (contentDescription) for tiles and buttons.

@@ -3,7 +3,7 @@ package app.learnalphabet.quiz
 import kotlin.random.Random
 
 /**
- * Order of «Знайди» questions: random rounds where every letter of [pool] comes once,
+ * Order of Find questions: random rounds where every letter of [pool] comes once,
  * and a new round never starts with the letter that was just asked.
  */
 class QuizDeck(pool: List<Int>, private val random: Random) {

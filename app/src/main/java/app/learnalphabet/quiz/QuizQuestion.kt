@@ -6,7 +6,7 @@ import kotlin.random.Random
 enum class OptionState { OPEN, WRONG, RIGHT, LOCKED }
 
 /**
- * One «Знайди» question. Values are letter indices into the language's letters.
+ * One Find question. Values are letter indices into the language's letters.
  * A wrong pick only removes that option; the question ends only when the answer is picked.
  */
 data class QuizQuestion(

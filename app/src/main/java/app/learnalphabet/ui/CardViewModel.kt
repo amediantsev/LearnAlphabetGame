@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlin.random.Random
 
-/** What the top switch shows: two ways to go through cards, and the «Знайди» quiz. */
+/** What the top switch shows: two ways to go through cards, and the Find quiz («Знайди»). */
 enum class Mode { ALPHABET, SHUFFLE, QUIZ }
 
 data class CardUiState(
@@ -56,7 +56,7 @@ class CardViewModel(private val random: Random = Random.Default) : ViewModel() {
         }
     }
 
-    /** Goes back one card; false when there is nowhere to go (always in «Знайди»). */
+    /** Goes back one card; false when there is nowhere to go (always in Find). */
     fun previous(): Boolean {
         if (_ui.value.mode == Mode.QUIZ) return false
         val before = navigator.current

@@ -45,10 +45,10 @@ fun stateForError(errorCode: Int): SpeakerState? = when (errorCode) {
 
 /** What a card says aloud; the parent picks it in settings. [key] is what gets saved. */
 enum class SpeechMode(val key: String) {
-    /** «А… автобус» */
+    /** "А… автобус": the letter name, a pause, then the word. */
     LETTER_AND_WORD("letter_and_word"),
 
-    /** «А» */
+    /** "А": just the letter name. */
     LETTER_ONLY("letter_only");
 
     companion object {
