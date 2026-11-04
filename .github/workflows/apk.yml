@@ -1,8 +1,11 @@
 # Builds the APK on every PR and on main, and publishes it as a GitHub release
 # so it can be downloaded straight to a phone:
-#   - PR #N    -> pre-release "pr-N" (deleted when the PR closes) + a PR comment with the link
-#   - main     -> release "build-latest", always at
-#                 https://github.com/<owner>/<repo>/releases/latest/download/abetka-debug.apk
+#   - main   -> a new release per merge: v0.1.0, v0.2.0, ... with abetka-0.N.0.apk.
+#               Releases are never replaced; the newest is always at
+#               https://github.com/<owner>/<repo>/releases/latest
+#   - PR #N  -> pre-release "pr-N" with abetka-pr-N.apk (deleted when the PR closes)
+#               + a PR comment with the link
+# Version numbers come from tools/next-version.sh.
 name: APK
 
 on:
@@ -17,7 +20,9 @@ permissions:
 
 concurrency:
   group: apk-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  # PR builds: a newer push makes the older build pointless. main: every merge gets its own
+  # release, so builds wait for each other instead (that also keeps the numbers in order).
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   GH_TOKEN: ${{ github.token }}
@@ -29,6 +34,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the release tags are needed to pick the next version number
 
       - uses: actions/setup-java@v4
         with:
@@ -37,16 +44,30 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      - name: Pick version
+        env:
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          if [ -n "$PR" ]; then
+            read -r name code < <(tools/next-version.sh pr "$PR")
+            apk="abetka-pr-$PR.apk"
+          else
+            read -r name code < <(tools/next-version.sh)
+            apk="abetka-$name.apk"
+          fi
+          echo "Version $name (code $code) -> $apk"
+          { echo "VERSION_NAME=$name"; echo "VERSION_CODE=$code"; echo "APK=$apk"; } >> "$GITHUB_ENV"
+
       - name: Test and build
-        run: ./gradlew testDebugUnitTest assembleDebug
+        run: ./gradlew testDebugUnitTest assembleRelease -PabetkaVersionName="$VERSION_NAME" -PabetkaVersionCode="$VERSION_CODE"
 
       - name: Rename APK
-        run: cp app/build/outputs/apk/debug/app-debug.apk abetka-debug.apk
+        run: cp app/build/outputs/apk/release/app-release.apk "$APK"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: abetka-debug-apk
-          path: abetka-debug.apk
+          name: abetka-apk
+          path: ${{ env.APK }}
           retention-days: 30
 
       - name: Publish PR pre-release
@@ -57,17 +78,18 @@ jobs:
         run: |
           tag="pr-$PR"
           gh release delete "$tag" --cleanup-tag --yes 2>/dev/null || true
-          gh release create "$tag" abetka-debug.apk \
-            --prerelease --target "$SHA" \
-            --title "Abetka: PR #$PR build" \
+          gh api -X DELETE "repos/$GH_REPO/git/refs/tags/$tag" 2>/dev/null || true
+          gh release create "$tag" "$APK" \
+            --prerelease --latest=false --target "$SHA" \
+            --title "Abetka: PR #$PR build ($VERSION_NAME)" \
             --notes "Test build from PR #$PR (commit ${SHA:0:7}). Deleted when the PR is closed."
 
-          url="https://github.com/$GH_REPO/releases/download/$tag/abetka-debug.apk"
+          url="https://github.com/$GH_REPO/releases/download/$tag/$APK"
           marker="<!-- apk-build -->"
           body="$marker
-          📱 **APK for this PR:** [abetka-debug.apk]($url)
+          📱 **APK for this PR:** [$APK]($url)
 
-          Built from commit \`${SHA:0:7}\`. Open the link on the phone to download and install it."
+          Version \`$VERSION_NAME\`, built from commit \`${SHA:0:7}\`. Open the link on the phone to download and install it."
           id="$(gh api "repos/$GH_REPO/issues/$PR/comments" --paginate \
             --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | head -1)"
           if [ -n "$id" ]; then
@@ -76,19 +98,27 @@ jobs:
             gh pr comment "$PR" --body "$body"
           fi
 
-      - name: Publish latest release
+      - name: Publish release
         if: github.event_name == 'push'
         run: |
-          tag="build-latest"
-          gh release delete "$tag" --cleanup-tag --yes 2>/dev/null || true
-          gh release create "$tag" abetka-debug.apk \
+          tag="v$VERSION_NAME"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists for this commit; nothing to publish."
+            exit 0
+          fi
+          gh release create "$tag" "$APK" \
             --latest --target "$GITHUB_SHA" \
-            --title "Abetka: latest build" \
-            --notes "Build from the main branch (commit ${GITHUB_SHA:0:7})."
+            --title "Abetka $VERSION_NAME" \
+            --generate-notes
 
   cleanup:
     if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - name: Delete PR pre-release
-        run: gh release delete "pr-${{ github.event.pull_request.number }}" --cleanup-tag --yes || true
+        env:
+          TAG: pr-${{ github.event.pull_request.number }}
+        run: |
+          gh release delete "$TAG" --cleanup-tag --yes || true
+          # --cleanup-tag has left pr-N tags behind before; make sure the tag is gone.
+          gh api -X DELETE "repos/$GH_REPO/git/refs/tags/$TAG" || true
