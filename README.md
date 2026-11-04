@@ -17,14 +17,16 @@ Find mode design: [docs/superpowers/specs/2026-10-30-quiz-mode-design.md](docs/s
 
 ## Download a ready APK
 
-Latest build from `main`: [abetka-debug.apk](https://github.com/amediantsev/LearnAlphabetGame/releases/latest/download/abetka-debug.apk). You can open the link right on the phone.
+Latest version: the [latest release](https://github.com/amediantsev/LearnAlphabetGame/releases/latest) page, file `abetka-0.N.0.apk`. You can open the link right on the phone.
 
 GitHub Actions builds the APK automatically (`.github/workflows/apk.yml`):
 
-- for every PR: tests, a build and a `pr-<number>` pre-release; the PR gets a comment with a link to the APK. When the PR is closed, the pre-release is deleted;
-- for every push to `main`: the "Abetka: latest build" release (link above).
+- for every merge into `main`: a new release `v0.1.0`, `v0.2.0`, `v0.3.0`… with `abetka-0.N.0.apk` and a list of the merged PRs. Releases are never replaced, so every earlier version stays downloadable;
+- for every PR: tests, a build and a `pr-<number>` pre-release with `abetka-pr-<number>.apk`; the PR gets a comment with a link to the APK. When the PR is closed, the pre-release is deleted.
 
-All builds, from GitHub and from any Mac, are signed with the same key `app/debug.keystore`, so a new version installs over the old one. It is a debug key and not a secret; Google Play will need a separate release key.
+The version number comes from `tools/next-version.sh`: the last `v0.N.0` tag plus one. The middle number is also the app's `versionCode`, so the phone always sees a newer release as newer. A PR build gets the number its merge will get (`0.N.0-pr<number>`).
+
+The APK is a release build (not debuggable, so it runs faster) signed with the shared key `app/debug.keystore`. All builds, from GitHub and from any Mac, use that key, so a new version installs over the old one. It is not a secret; Google Play will need a separate release key.
 
 ## Build the APK yourself
 
@@ -32,9 +34,11 @@ You need JDK 17 (`brew install openjdk@17`) and the Android SDK (`~/Library/Andr
 
 ```bash
 export JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
-./gradlew testDebugUnitTest assembleDebug
-mkdir -p dist && cp app/build/outputs/apk/debug/app-debug.apk dist/abetka-debug.apk
+./gradlew testDebugUnitTest assembleRelease
+mkdir -p dist && cp app/build/outputs/apk/release/app-release.apk dist/abetka.apk
 ```
+
+A local build is version `0.0.0-dev` with `versionCode` 1, so Android will not install it over a newer release from GitHub (remove the app first). To give it a real number, pass it in: `./gradlew assembleRelease -PabetkaVersionName=0.5.0 -PabetkaVersionCode=5`.
 
 ## Add pictures
 
@@ -47,7 +51,7 @@ Until a picture exists, the card shows an emoji or a tile with the letter.
 
 ## Install on a Xiaomi phone
 
-1. Open the APK link (see above) on the phone, or send `dist/abetka-debug.apk` to it (Telegram, Google Drive, cable).
+1. Open the APK link (see above) on the phone, or send `dist/abetka.apk` to it (Telegram, Google Drive, cable).
 2. Open the file. The phone will ask to allow installing unknown apps for the app you opened the file with (for example, Files or Telegram). Allow it.
 3. If HyperOS/MIUI shows a security check, choose "Install anyway". The warning appears because the app is not from Google Play.
 4. Install new versions the same way, over the old one.

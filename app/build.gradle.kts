@@ -12,8 +12,9 @@ android {
         applicationId = "app.learnalphabet"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "0.1.0"
+        // CI passes the release number (see tools/next-version.sh); local builds are "0.0.0-dev".
+        versionCode = (findProperty("abetkaVersionCode") as String?)?.toInt() ?: 1
+        versionName = (findProperty("abetkaVersionName") as String?) ?: "0.0.0-dev"
     }
 
     // Shared debug key (not secret) so APKs built on CI and on any Mac install over each other.
@@ -23,6 +24,15 @@ android {
             storePassword = "android"
             keyAlias = "androiddebugkey"
             keyPassword = "android"
+        }
+    }
+
+    buildTypes {
+        // The APK people install: not debuggable, so Compose runs at full speed. Signed with the
+        // same shared key as debug builds, so it installs over any earlier build of the app.
+        getByName("release") {
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
