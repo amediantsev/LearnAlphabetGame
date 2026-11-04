@@ -103,7 +103,7 @@ Letter names for synthesis are starting values; they have to be checked by ear o
 | 21 | Р р | ер | риба | 1st | a colorful fish | 21-ryba.png |
 | 22 | С с | ес | сонце | 1st | a smiling sun | 22-sontse.png |
 | 23 | Т т | те | трактор | 1st | a red tractor | 23-traktor.png |
-| 24 | У у | у | усмішка | 1st | a big happy smile (smiling face) | 24-usmishka.png |
+| 24 | У у | у | Україна | 1st | the flag of Ukraine on a pole | 24-ukrayina.png |
 | 25 | Ф ф | еф | фламінго | 1st | a pink flamingo | 25-flamingo.png |
 | 26 | Х х | ха | хмарка | 1st | a fluffy white cloud | 26-khmarka.png |
 | 27 | Ц ц | це | цукерка | 1st | a wrapped candy | 27-tsukerka.png |
@@ -115,6 +115,8 @@ Letter names for synthesis are starting values; they have to be checked by ear o
 | 33 | Я я | я | яблуко | 1st | a red apple | 33-yabluko.png |
 
 Weak spots worth checking with the child: «ґудзик» (button), «індик» (turkey), «носоріг» (rhinoceros), «усмішка» (smile), «єнот» (raccoon). If a word is unfamiliar to him, the owner can replace it (it is just one line of data and one picture).
+
+Changed 2026-11-04: У is now «Україна» with a flag picture instead of «усмішка», because the child knows it well. It is a proper noun, so it is written with a capital letter and the highlighted letter is the capital «У».
 
 ## Pictures: ChatGPT prompt template
 
