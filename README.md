@@ -7,7 +7,7 @@ Design: [docs/superpowers/specs/2026-10-29-learn-alphabet-design.md](docs/superp
 ## Modes
 
 - **Alphabet** («Абетка») and **Shuffle** («Випадково»): learning cards (letter, picture, word), in order or shuffled.
-- **Find** («Знайди»): a check to consolidate what was learnt. The app shows a picture, speaks "а… автобус" once by itself, and the child looks for that letter among four. A wrong tile turns red and is disabled, so the child always reaches the right one. The right one turns green with ✓, the word appears, and ▶ moves on (▶ can also skip a question). A right answer rings two bells, a wrong tile gives two soft wooden knocks; both follow the phone's media volume.
+- **Find** («Знайди»): a check to consolidate what was learnt. The app shows a picture, speaks "а… автобус" once by itself, and the child looks for that letter among four. A wrong tile turns red and is disabled, so the child always reaches the right one. The right one turns green with ✓, the word appears, and ▶ moves on. Until the right letter is found, ▶ is grey and does nothing (a swipe left neither), so a question cannot be skipped. A right answer rings two bells, a wrong tile gives two soft wooden knocks; both follow the phone's media volume.
 
 In ⚙️ «Налаштування» (Settings) you can choose what is spoken: the letter and the word ("А… автобус") or just the letter ("А"). The choice applies to all modes and is kept after a restart.
 

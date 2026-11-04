@@ -70,10 +70,10 @@ Mockup: `.superpowers/brainstorm/65269-1793371405/content/quiz-layout.html` (not
 - **No automatic move on.** The ▶ button turns green, bigger and "glows" (a soft ring around it). The child presses "next" himself, and the adult has time to praise and talk.
 - Speech does not start again (but 🔊 and tapping the picture work).
 
-### Moving on and skipping
+### Moving on
 
 - ▶ or a swipe left: the next question. A new question slides in the same way as cards and starts speech by itself.
-- Before the right answer ▶ is grey but works: this skips a letter the child does not know yet. A skipped letter does not come back in this round.
+- Before the right answer ▶ is grey and disabled, and a swipe left does nothing: a question cannot be skipped. (Changed 2026-11-04 at the owner's request; at first a grey ▶ skipped the letter.)
 - A swipe right does nothing in this mode: there is no going back to the previous question.
 
 ### Question order and options

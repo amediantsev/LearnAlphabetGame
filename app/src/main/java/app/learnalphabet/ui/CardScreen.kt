@@ -123,8 +123,9 @@ fun CardScreen(
             SpeakerState.INITIALIZING -> Unit
         }
     }
-    val goNext = { speaker.stop(); viewModel.next() }
-    // In Find there is no going back, so a stray swipe must not cut off the question.
+    // In Find ▶ and a swipe left do nothing until the right letter is found, and must not cut
+    // off the question being spoken; there is no going back either.
+    val goNext = { if (viewModel.next()) speaker.stop() }
     val goPrevious = { if (viewModel.previous()) speaker.stop() }
     val quiz = ui.mode == Mode.QUIZ
 
@@ -218,7 +219,7 @@ fun CardScreen(
             RoundButton("🔊", AbetkaColors.Sound, 64.dp, stringResource(R.string.speak), speak)
             if (quiz) {
                 val solved = ui.quiz?.solved == true
-                // Grey "skip" until the answer is found, then a bigger glowing green "next".
+                // Grey and disabled until the answer is found, then a bigger glowing green "next".
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
@@ -231,6 +232,7 @@ fun CardScreen(
                         if (solved) 60.dp else 52.dp,
                         stringResource(R.string.next),
                         goNext,
+                        enabled = solved,
                     )
                 }
             } else {
@@ -321,14 +323,21 @@ private fun ModeChip(label: String, selected: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun RoundButton(symbol: String, color: Color, size: Dp, description: String, onClick: () -> Unit) {
+private fun RoundButton(
+    symbol: String,
+    color: Color,
+    size: Dp,
+    description: String,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .size(size)
             .clip(CircleShape)
             .background(color)
-            .clickable(onClick = onClick)
+            .clickable(enabled = enabled, onClick = onClick)
             .semantics { contentDescription = description },
     ) {
         Text(symbol, fontSize = (size.value * 0.42f).sp, color = Color.White)

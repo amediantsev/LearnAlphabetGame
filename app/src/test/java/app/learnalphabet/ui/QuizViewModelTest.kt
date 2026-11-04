@@ -15,6 +15,25 @@ class QuizViewModelTest {
 
     private fun vm(seed: Int = 0) = CardViewModel(Random(seed))
 
+    /** Answers the current question right, then presses ▶. */
+    private fun CardViewModel.solveAndNext() {
+        val state = ui.value
+        pick(state.quizSerial, state.quiz!!.answer)
+        next()
+    }
+
+    @Test fun quiz_next_beforeRightAnswer_doesNothing() {
+        val vm = vm()
+        vm.setMode(Mode.QUIZ)
+        val fresh = vm.ui.value
+        vm.next()
+        assertEquals(fresh, vm.ui.value)
+        vm.pick(fresh.quizSerial, fresh.quiz!!.options.first { it != fresh.quiz!!.answer })
+        val afterWrong = vm.ui.value
+        vm.next()
+        assertEquals(afterWrong, vm.ui.value)
+    }
+
     @Test fun quiz_firstQuestion_isNotCurrentCard() = repeat(100) { seed ->
         val vm = vm(seed)
         repeat(3) { vm.next() }
@@ -32,7 +51,7 @@ class QuizViewModelTest {
         vm.setMode(Mode.QUIZ)
         val first = vm.ui.value
         vm.pick(first.quizSerial, first.quiz!!.options.first { it != first.quiz!!.answer })
-        vm.next()
+        vm.solveAndNext()
         val second = vm.ui.value
         assertEquals(first.quizSerial + 1, second.quizSerial)
         assertFalse(second.quiz!!.solved)
@@ -43,7 +62,7 @@ class QuizViewModelTest {
     @Test fun quiz_previous_isNoOp() {
         val vm = vm()
         vm.setMode(Mode.QUIZ)
-        vm.next()
+        vm.solveAndNext()
         val before = vm.ui.value
         vm.previous()
         assertEquals(before, vm.ui.value)
@@ -66,11 +85,11 @@ class QuizViewModelTest {
         val answers = mutableListOf<Int>()
         vm.setMode(Mode.QUIZ)
         answers += vm.ui.value.quiz!!.answer
-        repeat(9) { vm.next(); answers += vm.ui.value.quiz!!.answer }
+        repeat(9) { vm.solveAndNext(); answers += vm.ui.value.quiz!!.answer }
         vm.setMode(Mode.ALPHABET)
         vm.setMode(Mode.QUIZ)
         answers += vm.ui.value.quiz!!.answer
-        repeat(22) { vm.next(); answers += vm.ui.value.quiz!!.answer }
+        repeat(22) { vm.solveAndNext(); answers += vm.ui.value.quiz!!.answer }
         assertEquals(33, answers.toSet().size)
     }
 
@@ -90,7 +109,7 @@ class QuizViewModelTest {
         vm.setMode(Mode.QUIZ)
         assertTrue(vm.consumeAutoSpeak(SpeakerState.READY))
         assertFalse(vm.consumeAutoSpeak(SpeakerState.READY))
-        vm.next()
+        vm.solveAndNext()
         assertTrue(vm.consumeAutoSpeak(SpeakerState.READY))
     }
 
@@ -107,11 +126,22 @@ class QuizViewModelTest {
         val vm = vm()
         vm.setMode(Mode.QUIZ)
         val old = vm.ui.value
-        vm.next()
+        vm.solveAndNext()
         val now = vm.ui.value
         (0 until 33).forEach { vm.pick(old.quizSerial, it) }
         assertEquals(now, vm.ui.value)
     }
+
+    @Test fun quiz_next_reportsMoveOnlyWhenSolved() {
+        val vm = vm()
+        vm.setMode(Mode.QUIZ)
+        assertFalse(vm.next())
+        val state = vm.ui.value
+        vm.pick(state.quizSerial, state.quiz!!.answer)
+        assertTrue(vm.next())
+    }
+
+    @Test fun cards_next_reportsMove() = assertTrue(vm().next())
 
     @Test fun quiz_previous_reportsNoMove() {
         val vm = vm()
@@ -136,7 +166,7 @@ class QuizViewModelTest {
         val vm = CardViewModel(Random(seed), MemoryStore())
         vm.setQuizLetters(amo)
         vm.setMode(Mode.QUIZ)
-        val answers = List(30) { vm.ui.value.quiz!!.answer.also { vm.next() } }
+        val answers = List(30) { vm.ui.value.quiz!!.answer.also { vm.solveAndNext() } }
         assertEquals(amoIndices, answers.toSet())
     }
 
@@ -144,7 +174,7 @@ class QuizViewModelTest {
         val vm = CardViewModel(Random(1), MemoryStore())
         vm.setQuizLetters(amo)
         vm.setMode(Mode.QUIZ)
-        val options = List(30) { vm.ui.value.quiz!!.options.also { assertEquals(4, it.size); vm.next() } }.flatten()
+        val options = List(30) { vm.ui.value.quiz!!.options.also { assertEquals(4, it.size); vm.solveAndNext() } }.flatten()
         assertTrue(options.any { it !in amoIndices })
     }
 
@@ -156,7 +186,7 @@ class QuizViewModelTest {
             val quiz = vm.ui.value.quiz!!
             assertEquals(16, quiz.answer)
             assertEquals(4, quiz.options.toSet().size)
-            vm.next()
+            vm.solveAndNext()
         }
     }
 
@@ -232,7 +262,7 @@ class QuizViewModelTest {
         assertEquals(PickResult.IGNORED, vm.pick(0, 0))
         vm.setMode(Mode.QUIZ)
         val old = vm.ui.value
-        vm.next()
+        vm.solveAndNext()
         assertEquals(PickResult.IGNORED, vm.pick(old.quizSerial, old.quiz!!.answer))
     }
 }

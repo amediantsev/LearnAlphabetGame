@@ -60,13 +60,19 @@ class CardViewModel(
     private var deck = QuizDeck(quizPool(Languages.default, _ui.value.quizLetters), random)
     private val autoSpeak = AutoSpeakGate()
 
-    fun next() {
+    /**
+     * Goes to the next card or question; false when nothing moved. In Find that is until the
+     * right letter is found: a question cannot be skipped.
+     */
+    fun next(): Boolean {
         val state = _ui.value
         if (state.mode == Mode.QUIZ) {
+            if (state.quiz?.solved != true) return false
             askNext(state)
         } else {
             _ui.value = state.copy(index = navigator.next(), direction = 1)
         }
+        return true
     }
 
     /** Goes back one card; false when there is nowhere to go (always in Find). */
