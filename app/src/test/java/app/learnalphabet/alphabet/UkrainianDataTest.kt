@@ -18,8 +18,17 @@ class UkrainianDataTest {
     @Test
     fun everyHighlight_pointsAtTheCardsLetter() {
         Ukrainian.letters.forEach {
-            assertEquals(it.upper, it.lower, it.word[it.highlightIndex].toString())
+            // Case-insensitive: a proper noun («Україна») starts with the capital letter.
+            assertEquals(it.upper, it.lower, it.word[it.highlightIndex].lowercase())
         }
+    }
+
+    @Test
+    fun u_isUkraine_writtenWithCapital() {
+        val u = Ukrainian.letters.first { it.upper == "У" }
+        assertEquals("Україна", u.word)
+        assertEquals(0, u.highlightIndex)
+        assertEquals("24-ukrayina", u.imageName)
     }
 
     @Test
